@@ -35,19 +35,28 @@ export const generateComponent = async (
     initial: 1,
   });
 
-  const componentTemplate = buildComponentTemplate(name, stylesheetExt.style);
-  const stylesheetTemplate = buildStylesheetTemplate(name);
-  const hookTemplate = buildHookTemplate(name);
+  const componentLanguage = componentExt?.replace("x", "")!;
 
   return {
-    JSX: { file: `${name}.${componentExt}`, content: componentTemplate },
+    JSX: {
+      file: `${name}.${componentExt}`,
+      content: buildComponentTemplate(
+        name,
+        stylesheetExt.style,
+        componentLanguage,
+      ),
+    },
     stylesheet: {
       file: `${name}.module.${stylesheetExt.style}`,
-      content: stylesheetTemplate,
+      content: buildStylesheetTemplate(name),
     },
     hook: {
-      file: `use${name}.${componentExt?.replace("x", "")}`,
-      content: hookTemplate,
+      file: `use${name}.${componentLanguage}`,
+      content: buildHookTemplate(name),
+    },
+    test: {
+      file: `${name}.test.${componentLanguage}`,
+      content: "",
     },
   };
 };
