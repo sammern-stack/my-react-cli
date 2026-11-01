@@ -1,0 +1,30 @@
+{
+  "name": "@pavlos-samaras/react-cli",
+  "version": "1.0.0",
+  "author": "sammern-stack",
+  "description": "A CLI to generate React code",
+  "keywords": ["react", "cli", "generator"],
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "ct": "./dist/bin/ct.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/bin/ct.ts",
+    "build:link": "npm run build && npm link"
+  },
+  "dependencies": {
+    "commander": "^15.0.0",
+    "prompts": "^2.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/prompts": "^2.4.9",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  },
+  "files": [
+    "dist"
+  ]
+}

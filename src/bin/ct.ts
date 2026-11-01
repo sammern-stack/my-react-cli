@@ -1,0 +1,32 @@
+#!/usr/bin/env node
+import fs from "fs";
+import path from "path";
+import { Command } from "commander";
+import { generateComponent } from "../utils/generateComponent.js";
+import type { ComponentOptions } from "../types/component.js";
+
+const program = new Command();
+
+const TYPES = ["component"];
+
+program.name("ct").description("My React CLI").version("1.0.0");
+
+program
+  .command("generate <type> <name>")
+  .alias("g")
+  .description("Generate a component, e.g. ct g component Button")
+  .option("-d, --dir <div>", "target folder", "components")
+  .option("--ts", "create a .tsx file")
+  .action(async (type: string, name: string, options: ComponentOptions) => {
+    if (!TYPES.includes(type)) return console.log(`Unknown type: ${type}`);
+
+    if (type === "component") {
+      const folder = path.join(process.cwd(), options.dir, name);
+      fs.mkdirSync(folder, { recursive: true });
+
+      const { file, content } = await generateComponent(name, options);
+      fs.writeFileSync(path.join(folder, file), content);
+    }
+  });
+
+program.parse();
