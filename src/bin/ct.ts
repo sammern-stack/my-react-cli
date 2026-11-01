@@ -16,12 +16,16 @@ program
   .alias("g")
   .description("Generate a component, e.g. ct g component Button")
   .option("-d, --dir <div>", "target folder", "components")
+  .option("-f, --feature <feature>", "put component under a feature")
   .option("--ts", "create a .tsx file")
   .action(async (type: string, name: string, options: ComponentOptions) => {
     if (!TYPES.includes(type)) return console.log(`Unknown type: ${type}`);
 
     if (type === "component") {
-      const folder = path.join(process.cwd(), options.dir, name);
+      const pathToComponent = options.feature
+        ? `src/features/${options.feature}/${options.dir}`
+        : `src/${options.dir}`;
+      const folder = path.join(process.cwd(), pathToComponent, name);
       fs.mkdirSync(folder, { recursive: true });
 
       const { file, content } = await generateComponent(name, options);
