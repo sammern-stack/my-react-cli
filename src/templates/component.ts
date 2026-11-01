@@ -1,6 +1,8 @@
-const buildComponentTemplate = (name: string) => {
-  return `export const ${name} = () => {
-  return <div></div>
+const buildComponentTemplate = (name: string, stylesheetExt: string) => {
+  return `import styles from "./${name}.module.${stylesheetExt}"
+
+export const ${name} = () => {
+  return <div className={styles.${name.toLowerCase()}></div>
 }`;
 };
 

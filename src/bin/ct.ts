@@ -28,8 +28,13 @@ program
       const folder = path.join(process.cwd(), pathToComponent, name);
       fs.mkdirSync(folder, { recursive: true });
 
-      const { file, content } = await generateComponent(name, options);
+      const { file, stylesheet, content, styles } = await generateComponent(
+        name,
+        options,
+      );
+
       fs.writeFileSync(path.join(folder, file), content);
+      fs.writeFileSync(path.join(folder, stylesheet), styles);
     }
   });
 
