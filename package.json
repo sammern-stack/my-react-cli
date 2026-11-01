@@ -11,6 +11,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "prepublishOnly": "npm run build",
     "dev": "tsx src/bin/ct.ts",
     "build:link": "npm run build && npm link"
   },

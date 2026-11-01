@@ -1,15 +1,19 @@
 #!/usr/bin/env node
 import fs from "fs";
 import path from "path";
+import { createRequire } from "module";
 import { Command } from "commander";
 import { generateComponent } from "../utils/generateComponent.js";
 import type { ComponentOptions } from "../types/component.js";
+
+const require = createRequire(import.meta.url);
+const { version } = require("../../package.json") as { version: string };
 
 const program = new Command();
 
 const TYPES = ["component"];
 
-program.name("ct").description("My React CLI").version("1.0.0");
+program.name("ct").description("My React CLI").version(version);
 
 program
   .command("generate <type> <name>")
