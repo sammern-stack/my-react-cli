@@ -28,13 +28,11 @@ program
       const folder = path.join(process.cwd(), pathToComponent, name);
       fs.mkdirSync(folder, { recursive: true });
 
-      const { file, stylesheet, content, styles } = await generateComponent(
-        name,
-        options,
-      );
+      const { JSX, stylesheet, hook } = await generateComponent(name, options);
 
-      fs.writeFileSync(path.join(folder, file), content);
-      fs.writeFileSync(path.join(folder, stylesheet), styles);
+      fs.writeFileSync(path.join(folder, JSX.file), JSX.content);
+      fs.writeFileSync(path.join(folder, stylesheet.file), stylesheet.content);
+      fs.writeFileSync(path.join(folder, hook.file), hook.content);
     }
   });
 

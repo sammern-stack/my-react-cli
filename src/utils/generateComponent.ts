@@ -2,6 +2,7 @@ import prompts from "prompts";
 import buildComponentTemplate from "../templates/component.js";
 import type { ComponentOptions } from "../types/component.js";
 import buildStylesheetTemplate from "../templates/stylesheet.js";
+import buildHookTemplate from "../templates/hook.js";
 
 export const generateComponent = async (
   name: string,
@@ -20,7 +21,7 @@ export const generateComponent = async (
       ],
       initial: 0,
     });
-    componentExt = answer.ts;
+    componentExt = answer.ts as string;
   }
 
   const stylesheetExt = await prompts({
@@ -34,13 +35,19 @@ export const generateComponent = async (
     initial: 1,
   });
 
-  const content = buildComponentTemplate(name, stylesheetExt.style);
-  const styles = buildStylesheetTemplate(name);
+  const componentTemplate = buildComponentTemplate(name, stylesheetExt.style);
+  const stylesheetTemplate = buildStylesheetTemplate(name);
+  const hookTemplate = buildHookTemplate(name);
 
   return {
-    file: `${name}.${componentExt}`,
-    stylesheet: `${name}.module.${stylesheetExt.style}`,
-    content,
-    styles,
+    JSX: { file: `${name}.${componentExt}`, content: componentTemplate },
+    stylesheet: {
+      file: `${name}.module.${stylesheetExt.style}`,
+      content: stylesheetTemplate,
+    },
+    hook: {
+      file: `use${name}.${componentExt?.replace("x", "")}`,
+      content: hookTemplate,
+    },
   };
 };
