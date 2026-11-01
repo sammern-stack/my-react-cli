@@ -1,9 +1,13 @@
 {
   "name": "@pavlos-samaras/react-cli",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "sammern-stack",
   "description": "A CLI to generate React code",
-  "keywords": ["react", "cli", "generator"],
+  "keywords": [
+    "react",
+    "cli",
+    "generator"
+  ],
   "license": "MIT",
   "type": "module",
   "bin": {
