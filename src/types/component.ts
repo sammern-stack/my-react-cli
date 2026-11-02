@@ -1,5 +1,5 @@
 export type ComponentOptions = {
-  dir: string;
+  dir?: string;
   feature?: string;
   ts?: boolean;
   yes?: boolean;

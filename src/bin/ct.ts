@@ -2,18 +2,17 @@
 import fs from "fs";
 import path from "path";
 import chalk from "chalk";
-import ora from "ora";
 import { createRequire } from "module";
 import { Command } from "commander";
 import { generateComponent } from "../utils/generateComponent.js";
+import { applySpinner } from "../utils/applySpinner.js";
 import type { ComponentOptions } from "../types/component.js";
+import { DEFAULT_DIRS, TYPES } from "../constants/generator.js";
 
 const require = createRequire(import.meta.url);
 const { version } = require("../../package.json") as { version: string };
 
 const program = new Command();
-
-const TYPES = ["component"];
 
 program.name("ct").description("My React CLI").version(version);
 
@@ -21,7 +20,7 @@ program
   .command("generate <type> <name>")
   .alias("g")
   .description("Generate a component, e.g. ct g component Button")
-  .option("-d, --dir <div>", "target folder", "components")
+  .option("-d, --dir <dir>", "target folder (default depends on type)")
   .option("-f, --feature <feature>", "put component under a feature")
   .option("--ts", "create a .tsx file")
   .option("-y, --yes", "use default options and skip prompts")
@@ -32,14 +31,14 @@ program
       return;
     }
 
-    if (type === "component") {
-      const spinner = ora(`Creating ${name}...`).start();
+    const dir = options.dir ?? DEFAULT_DIRS[type]!;
 
-      try {
+    if (type === "component") {
         const pathToComponent = options.feature
-          ? `src/features/${options.feature}/${options.dir}`
-          : `src/${options.dir}`;
+        ? `src/features/${options.feature}/${dir}`
+        : `src/${dir}`;
         const folder = path.join(process.cwd(), pathToComponent, name);
+      applySpinner({ name, folder }, async () => {
         fs.mkdirSync(folder, { recursive: true });
 
         const { JSX, stylesheet, hook, test } = await generateComponent(
