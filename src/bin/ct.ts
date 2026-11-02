@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 import fs from "fs";
 import path from "path";
+import chalk from "chalk";
+import ora from "ora";
 import { createRequire } from "module";
 import { Command } from "commander";
 import { generateComponent } from "../utils/generateComponent.js";
@@ -24,24 +26,39 @@ program
   .option("--ts", "create a .tsx file")
   .option("-y, --yes", "use default options and skip prompts")
   .action(async (type: string, name: string, options: ComponentOptions) => {
-    if (!TYPES.includes(type)) return console.log(`Unknown type: ${type}`);
+    if (!TYPES.includes(type)) {
+      console.log(chalk.red(`Unknown type: ${type}`));
+      process.exitCode = 1;
+      return;
+    }
 
     if (type === "component") {
-      const pathToComponent = options.feature
-        ? `src/features/${options.feature}/${options.dir}`
-        : `src/${options.dir}`;
-      const folder = path.join(process.cwd(), pathToComponent, name);
-      fs.mkdirSync(folder, { recursive: true });
+      const spinner = ora(`Creating ${name}...`).start();
 
-      const { JSX, stylesheet, hook, test } = await generateComponent(
-        name,
-        options,
-      );
+      try {
+        const pathToComponent = options.feature
+          ? `src/features/${options.feature}/${options.dir}`
+          : `src/${options.dir}`;
+        const folder = path.join(process.cwd(), pathToComponent, name);
+        fs.mkdirSync(folder, { recursive: true });
 
-      fs.writeFileSync(path.join(folder, JSX.file), JSX.content);
-      fs.writeFileSync(path.join(folder, stylesheet.file), stylesheet.content);
-      fs.writeFileSync(path.join(folder, hook.file), hook.content);
-      fs.writeFileSync(path.join(folder, test.file), test.content);
+        const { JSX, stylesheet, hook, test } = await generateComponent(
+          folder,
+          name,
+          options,
+        );
+
+        fs.writeFileSync(JSX.pathToFile, JSX.content);
+        fs.writeFileSync(stylesheet.pathToFile, stylesheet.content);
+        fs.writeFileSync(hook.pathToFile, hook.content);
+        fs.writeFileSync(test.pathToFile, test.content);
+
+        spinner.succeed(`Created ${chalk.cyan(name)} in ${chalk.gray(folder)}`);
+      } catch (error) {
+        spinner.fail(chalk.red(`Could not create ${name}`));
+        console.error(error);
+        process.exitCode = 1;
+      }
     }
   });
 

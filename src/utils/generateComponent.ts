@@ -1,3 +1,4 @@
+import path from "path";
 import prompts from "prompts";
 import buildComponentTemplate from "../templates/component.js";
 import type { ComponentOptions } from "../types/component.js";
@@ -7,6 +8,7 @@ import buildHookTemplate from "../templates/hook.js";
 const DEFAULTS = { componentExt: "tsx", style: "scss" };
 
 export const generateComponent = async (
+  folder: string,
   name: string,
   options: ComponentOptions,
 ) => {
@@ -47,7 +49,7 @@ export const generateComponent = async (
 
   return {
     JSX: {
-      file: `${name}.${componentExt}`,
+      pathToFile: path.join(folder, `${name}.${componentExt}`),
       content: buildComponentTemplate(
         name,
         stylesheetExt.style,
@@ -55,15 +57,15 @@ export const generateComponent = async (
       ),
     },
     stylesheet: {
-      file: `${name}.module.${stylesheetExt.style}`,
+      pathToFile: path.join(folder, `${name}.module.${stylesheetExt.style}`),
       content: buildStylesheetTemplate(name),
     },
     hook: {
-      file: `use${name}.${componentLanguage}`,
+      pathToFile: path.join(folder, `use${name}.${componentLanguage}`),
       content: buildHookTemplate(name),
     },
     test: {
-      file: `${name}.test.${componentLanguage}`,
+      pathToFile: path.join(folder, `${name}.test.${componentLanguage}`),
       content: "",
     },
   };
