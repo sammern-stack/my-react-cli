@@ -1,7 +1,7 @@
 import path from "path";
 import prompts from "prompts";
 import buildComponentTemplate from "../templates/component.js";
-import type { ComponentOptions } from "../types/component.js";
+import type { GeneratorOptions } from "../types/generator.js";
 import buildStylesheetTemplate from "../templates/stylesheet.js";
 import buildHookTemplate from "../templates/hook.js";
 
@@ -10,7 +10,7 @@ const DEFAULTS = { componentExt: "tsx", style: "scss" };
 export const generateComponent = async (
   folder: string,
   name: string,
-  options: ComponentOptions,
+  options: GeneratorOptions,
 ) => {
   let componentExt: string | undefined;
 

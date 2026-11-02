@@ -6,7 +6,7 @@ import { createRequire } from "module";
 import { Command } from "commander";
 import { generateComponent } from "../utils/generateComponent.js";
 import { applySpinner } from "../utils/applySpinner.js";
-import type { ComponentOptions } from "../types/component.js";
+import type { GeneratorOptions } from "../types/generator.js";
 import { DEFAULT_DIRS, TYPES } from "../constants/generator.js";
 
 const require = createRequire(import.meta.url);
@@ -24,7 +24,7 @@ program
   .option("-f, --feature <feature>", "put component under a feature")
   .option("--ts", "create a .tsx file")
   .option("-y, --yes", "use default options and skip prompts")
-  .action(async (type: string, name: string, options: ComponentOptions) => {
+  .action(async (type: string, name: string, options: GeneratorOptions) => {
     if (!TYPES.includes(type)) {
       console.log(chalk.red(`Unknown type: ${type}`));
       process.exitCode = 1;

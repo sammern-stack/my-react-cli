@@ -1,4 +1,4 @@
-export type ComponentOptions = {
+export type GeneratorOptions = {
   dir?: string;
   feature?: string;
   ts?: boolean;
