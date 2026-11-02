@@ -6,9 +6,10 @@ import { createRequire } from "module";
 import { Command } from "commander";
 import { generateComponent } from "../utils/generateComponent.js";
 import { applySpinner } from "../utils/applySpinner.js";
-import type { GeneratorOptions } from "../types/generator.js";
 import { DEFAULT_DIRS, TYPES } from "../constants/generator.js";
 import { generateHook } from "../utils/generateHook.js";
+import type { GeneratorOptions } from "../types/generator.js";
+import { isReactProject } from "../utils/validateReactProject.js";
 
 const require = createRequire(import.meta.url);
 const { version } = require("../../package.json") as { version: string };
@@ -25,7 +26,19 @@ program
   .option("-f, --feature <feature>", "put component under a feature")
   .option("--ts", "create a .tsx file")
   .option("-y, --yes", "use default options and skip prompts")
+  .option("--force", "skip safety checks and overwrite")
   .action((type: string, name: string, options: GeneratorOptions) => {
+    if (!isReactProject() && !options.force) {
+      console.log(
+        chalk.yellow(
+          "This doesn't look like a React project (no react in package.json).",
+        ),
+      );
+      console.log(chalk.gray("Run ct from your project root, or use --force."));
+      process.exitCode = 1;
+      return;
+    }
+
     if (!TYPES.includes(type)) {
       console.log(chalk.red(`Unknown type: ${type}`));
       process.exitCode = 1;
@@ -39,6 +52,15 @@ program
         ? `src/features/${options.feature}/${dir}`
         : `src/${dir}`;
       const folder = path.join(process.cwd(), pathToComponent, name);
+
+      if (fs.existsSync(folder) && !options.force) {
+        console.log(
+          chalk.yellow(`${name} already exists. Use --force to overwrite it.`),
+        );
+        process.exitCode = 1;
+        return;
+      }
+
       applySpinner({ name, folder }, async () => {
         fs.mkdirSync(folder, { recursive: true });
 
@@ -68,6 +90,15 @@ program
         ? `src/features/${options.feature}/${dir}`
         : `src/shared/${dir}`;
       const folder = path.join(process.cwd(), pathToHook);
+
+      if (fs.existsSync(folder) && !options.force) {
+        console.log(
+          chalk.yellow(`${name} already exists. Use --force to overwrite it.`),
+        );
+        process.exitCode = 1;
+        return;
+      }
+
       applySpinner({ name, folder }, async () => {
         fs.mkdirSync(folder, { recursive: true });
         const hook = await generateHook(folder, name, options);

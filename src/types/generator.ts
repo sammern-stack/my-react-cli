@@ -3,4 +3,5 @@ export type GeneratorOptions = {
   feature?: string;
   ts?: boolean;
   yes?: boolean;
+  force?: boolean;
 }
