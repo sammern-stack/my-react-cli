@@ -8,6 +8,7 @@ import { generateComponent } from "../utils/generateComponent.js";
 import { applySpinner } from "../utils/applySpinner.js";
 import type { GeneratorOptions } from "../types/generator.js";
 import { DEFAULT_DIRS, TYPES } from "../constants/generator.js";
+import { generateHook } from "../utils/generateHook.js";
 
 const require = createRequire(import.meta.url);
 const { version } = require("../../package.json") as { version: string };
@@ -24,7 +25,7 @@ program
   .option("-f, --feature <feature>", "put component under a feature")
   .option("--ts", "create a .tsx file")
   .option("-y, --yes", "use default options and skip prompts")
-  .action(async (type: string, name: string, options: GeneratorOptions) => {
+  .action((type: string, name: string, options: GeneratorOptions) => {
     if (!TYPES.includes(type)) {
       console.log(chalk.red(`Unknown type: ${type}`));
       process.exitCode = 1;
@@ -34,10 +35,10 @@ program
     const dir = options.dir ?? DEFAULT_DIRS[type]!;
 
     if (type === "component") {
-        const pathToComponent = options.feature
+      const pathToComponent = options.feature
         ? `src/features/${options.feature}/${dir}`
         : `src/${dir}`;
-        const folder = path.join(process.cwd(), pathToComponent, name);
+      const folder = path.join(process.cwd(), pathToComponent, name);
       applySpinner({ name, folder }, async () => {
         fs.mkdirSync(folder, { recursive: true });
 
@@ -51,13 +52,27 @@ program
         fs.writeFileSync(stylesheet.pathToFile, stylesheet.content);
         fs.writeFileSync(hook.pathToFile, hook.content);
         fs.writeFileSync(test.pathToFile, test.content);
+      });
+    }
 
-        spinner.succeed(`Created ${chalk.cyan(name)} in ${chalk.gray(folder)}`);
-      } catch (error) {
-        spinner.fail(chalk.red(`Could not create ${name}`));
-        console.error(error);
+    if (type === "hook") {
+      if (!/^use[A-Z]\w+$/.test(name)) {
+        console.log(
+          chalk.red("Hook must start with 'use' followed by a capital letter"),
+        );
         process.exitCode = 1;
+        return;
       }
+
+      const pathToHook = options.feature
+        ? `src/features/${options.feature}/${dir}`
+        : `src/shared/${dir}`;
+      const folder = path.join(process.cwd(), pathToHook);
+      applySpinner({ name, folder }, async () => {
+        fs.mkdirSync(folder, { recursive: true });
+        const hook = await generateHook(folder, name, options);
+        fs.writeFileSync(hook.pathToFile, hook.content);
+      });
     }
   });
 
