@@ -22,6 +22,7 @@ program
   .option("-d, --dir <div>", "target folder", "components")
   .option("-f, --feature <feature>", "put component under a feature")
   .option("--ts", "create a .tsx file")
+  .option("-y, --yes", "use default options and skip prompts")
   .action(async (type: string, name: string, options: ComponentOptions) => {
     if (!TYPES.includes(type)) return console.log(`Unknown type: ${type}`);
 
