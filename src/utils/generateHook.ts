@@ -2,6 +2,7 @@ import path from "path";
 import type { GeneratorOptions } from "../types/generator.js";
 import prompts from "prompts";
 import buildHookTemplate from "../templates/hook.js";
+import { isTypescriptUsed } from "./validators.js";
 
 const DEFAULTS = { componentExt: "tsx", style: "scss" };
 
@@ -31,8 +32,11 @@ export const generateHook = async (
   }
   const componentLanguage = componentExt?.replace("x", "")!;
 
+  const useTs = options.ts ?? isTypescriptUsed();
+  const languageExt = useTs ? "ts" : "js";
+
   return {
-    pathToFile: path.join(folder, `${name}.${componentLanguage}`),
+    pathToFile: path.join(folder, `${name}.${languageExt}`),
     content: buildHookTemplate(name),
   };
 };

@@ -8,3 +8,7 @@ export const isReactProject = () => {
   const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
   return Boolean(pkg.dependencies?.react || pkg.devDependencies?.react);
 };
+
+export const isTypescriptUsed = () => {
+  return fs.existsSync(path.join(process.cwd(), "tsconfig.json"));
+};

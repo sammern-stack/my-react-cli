@@ -4,6 +4,7 @@ import buildComponentTemplate from "../templates/component.js";
 import type { GeneratorOptions } from "../types/generator.js";
 import buildStylesheetTemplate from "../templates/stylesheet.js";
 import buildHookTemplate from "../templates/hook.js";
+import { isTypescriptUsed } from "./validators.js";
 
 const DEFAULTS = { componentExt: "tsx", style: "scss" };
 
@@ -12,25 +13,25 @@ export const generateComponent = async (
   name: string,
   options: GeneratorOptions,
 ) => {
-  let componentExt: string | undefined;
+  // let componentExt: string | undefined;
 
-  if (options.ts !== undefined) {
-    componentExt = options.ts ? "tsx" : "jsx";
-  } else if (options.yes) {
-    componentExt = DEFAULTS.componentExt;
-  } else {
-    const answer = await prompts({
-      type: "select",
-      name: "ts",
-      message: "Use TypeScript?",
-      choices: [
-        { title: "Yes", value: "tsx" },
-        { title: "No", value: "jsx" },
-      ],
-      initial: 0,
-    });
-    componentExt = answer.ts as string;
-  }
+  // if (options.ts !== undefined) {
+  //   componentExt = options.ts ? "tsx" : "jsx";
+  // } else if (options.yes) {
+  //   componentExt = DEFAULTS.componentExt;
+  // } else {
+  //   const answer = await prompts({
+  //     type: "select",
+  //     name: "ts",
+  //     message: "Use TypeScript?",
+  //     choices: [
+  //       { title: "Yes", value: "tsx" },
+  //       { title: "No", value: "jsx" },
+  //     ],
+  //     initial: 0,
+  //   });
+  //   componentExt = answer.ts as string;
+  // }
 
   const stylesheetExt = options.yes
     ? { style: DEFAULTS.style }
@@ -45,27 +46,27 @@ export const generateComponent = async (
         initial: 1,
       });
 
-  const componentLanguage = componentExt?.replace("x", "")!;
+  // const componentLanguage = componentExt?.replace("x", "")!;
+
+  const useTs = options.ts ?? isTypescriptUsed();
+  const JsxExt = useTs ? "tsx" : "jsx";
+  const languageExt = useTs ? "ts" : "js";
 
   return {
     JSX: {
-      pathToFile: path.join(folder, `${name}.${componentExt}`),
-      content: buildComponentTemplate(
-        name,
-        stylesheetExt.style,
-        componentLanguage,
-      ),
+      pathToFile: path.join(folder, `${name}.${JsxExt}`),
+      content: buildComponentTemplate(name, stylesheetExt.style, languageExt),
     },
     stylesheet: {
       pathToFile: path.join(folder, `${name}.module.${stylesheetExt.style}`),
       content: buildStylesheetTemplate(name),
     },
     hook: {
-      pathToFile: path.join(folder, `use${name}.${componentLanguage}`),
+      pathToFile: path.join(folder, `use${name}.${languageExt}`),
       content: buildHookTemplate(name),
     },
     test: {
-      pathToFile: path.join(folder, `${name}.test.${componentLanguage}`),
+      pathToFile: path.join(folder, `${name}.test.${languageExt}`),
       content: "",
     },
   };

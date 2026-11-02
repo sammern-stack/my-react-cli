@@ -9,7 +9,7 @@ import { applySpinner } from "../utils/applySpinner.js";
 import { DEFAULT_DIRS, TYPES } from "../constants/generator.js";
 import { generateHook } from "../utils/generateHook.js";
 import type { GeneratorOptions } from "../types/generator.js";
-import { isReactProject } from "../utils/validateReactProject.js";
+import { isReactProject } from "../utils/validators.js";
 
 const require = createRequire(import.meta.url);
 const { version } = require("../../package.json") as { version: string };
@@ -21,10 +21,10 @@ program.name("ct").description("My React CLI").version(version);
 program
   .command("generate <type> <name>")
   .alias("g")
-  .description("Generate a component, e.g. ct g component Button")
+  .description("Generate a <type>, e.g. ct g component Button")
   .option("-d, --dir <dir>", "target folder (default depends on type)")
-  .option("-f, --feature <feature>", "put component under a feature")
-  .option("--ts", "create a .tsx file")
+  .option("-f, --feature <feature>", "put <type> under a feature")
+  .option("--ts", "use Typescript")
   .option("-y, --yes", "use default options and skip prompts")
   .option("--force", "skip safety checks and overwrite")
   .action((type: string, name: string, options: GeneratorOptions) => {
