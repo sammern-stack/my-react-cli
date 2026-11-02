@@ -5,16 +5,16 @@ import buildStylesheetTemplate from "../templates/stylesheet.js";
 import buildHookTemplate from "../templates/hook.js";
 import { isTypescriptUsed } from "./validators.js";
 import type { GeneratorOptions } from "../types/generator.js";
-
-const DEFAULTS = { componentExt: "tsx", style: "scss" };
+import type { CtConfig } from "./loadConfig.js";
 
 export const generateComponent = async (
   folder: string,
   name: string,
   options: GeneratorOptions,
+  config: CtConfig,
 ) => {
-  const stylesheetExt = options.yes
-    ? { style: DEFAULTS.style }
+  const stylesheetExt = config.stylesheet
+    ? { style: config.stylesheet }
     : await prompts({
         type: "select",
         name: "style",
@@ -26,7 +26,7 @@ export const generateComponent = async (
         initial: 1,
       });
 
-  const useTs = options.ts ?? isTypescriptUsed();
+  const useTs = options.ts ?? config.typescript ?? isTypescriptUsed();
   const JsxExt = useTs ? "tsx" : "jsx";
   const languageExt = useTs ? "ts" : "js";
 

@@ -10,6 +10,7 @@ import { DEFAULT_DIRS, TYPES } from "../constants/generator.js";
 import { generateHook } from "../utils/generateHook.js";
 import { isReactProject } from "../utils/validators.js";
 import type { GeneratorOptions } from "../types/generator.js";
+import { loadConfig } from "../utils/loadConfig.js";
 
 const require = createRequire(import.meta.url);
 const { version } = require("../../package.json") as { version: string };
@@ -22,10 +23,9 @@ program
   .command("generate <type> <name>")
   .alias("g")
   .description("Generate a <type>, e.g. ct g component Button")
-  .option("-d, --dir <dir>", "target folder (default depends on type)")
+  .option("-d, --dir <dir>", "target folder")
   .option("-f, --feature <feature>", "put <type> under a feature")
   .option("--ts", "use Typescript")
-  .option("-y, --yes", "use default options and skip prompts")
   .option("--force", "skip safety checks and overwrite")
   .action((type: string, name: string, options: GeneratorOptions) => {
     if (!isReactProject() && !options.force) {
@@ -39,15 +39,16 @@ program
       return;
     }
 
+    const config = loadConfig() ?? {};
+
     if (!TYPES.includes(type)) {
       console.log(chalk.red(`Unknown type: ${type}`));
       process.exitCode = 1;
       return;
     }
 
-    const dir = options.dir ?? DEFAULT_DIRS[type]!;
-
     if (type === "component") {
+      const dir = options.dir ?? config.dir?.component ?? "components";
       const pathToComponent = options.feature
         ? `src/features/${options.feature}/${dir}`
         : `src/${dir}`;
@@ -68,6 +69,7 @@ program
           folder,
           name,
           options,
+          config,
         );
 
         fs.writeFileSync(JSX.pathToFile, JSX.content);
@@ -86,6 +88,7 @@ program
         return;
       }
 
+      const dir = options.dir ?? config.dir?.hook ?? "hooks";
       const pathToHook = options.feature
         ? `src/features/${options.feature}/${dir}`
         : `src/shared/${dir}`;
@@ -101,7 +104,7 @@ program
 
       applySpinner({ name, folder }, async () => {
         fs.mkdirSync(folder, { recursive: true });
-        const hook = await generateHook(folder, name, options);
+        const hook = await generateHook(folder, name, options, config);
         fs.writeFileSync(hook.pathToFile, hook.content);
       });
     }
