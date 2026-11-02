@@ -1,17 +1,19 @@
 #!/usr/bin/env node
 import fs from "fs";
 import path from "path";
+import chalk from "chalk";
 import { createRequire } from "module";
 import { Command } from "commander";
 import { generateComponent } from "../utils/generateComponent.js";
-import type { ComponentOptions } from "../types/component.js";
+import { applySpinner } from "../utils/applySpinner.js";
+import type { GeneratorOptions } from "../types/generator.js";
+import { DEFAULT_DIRS, TYPES } from "../constants/generator.js";
+import { generateHook } from "../utils/generateHook.js";
 
 const require = createRequire(import.meta.url);
 const { version } = require("../../package.json") as { version: string };
 
 const program = new Command();
-
-const TYPES = ["component"];
 
 program.name("ct").description("My React CLI").version(version);
 
@@ -19,28 +21,58 @@ program
   .command("generate <type> <name>")
   .alias("g")
   .description("Generate a component, e.g. ct g component Button")
-  .option("-d, --dir <div>", "target folder", "components")
+  .option("-d, --dir <dir>", "target folder (default depends on type)")
   .option("-f, --feature <feature>", "put component under a feature")
   .option("--ts", "create a .tsx file")
-  .action(async (type: string, name: string, options: ComponentOptions) => {
-    if (!TYPES.includes(type)) return console.log(`Unknown type: ${type}`);
+  .option("-y, --yes", "use default options and skip prompts")
+  .action((type: string, name: string, options: GeneratorOptions) => {
+    if (!TYPES.includes(type)) {
+      console.log(chalk.red(`Unknown type: ${type}`));
+      process.exitCode = 1;
+      return;
+    }
+
+    const dir = options.dir ?? DEFAULT_DIRS[type]!;
 
     if (type === "component") {
       const pathToComponent = options.feature
-        ? `src/features/${options.feature}/${options.dir}`
-        : `src/${options.dir}`;
+        ? `src/features/${options.feature}/${dir}`
+        : `src/${dir}`;
       const folder = path.join(process.cwd(), pathToComponent, name);
-      fs.mkdirSync(folder, { recursive: true });
+      applySpinner({ name, folder }, async () => {
+        fs.mkdirSync(folder, { recursive: true });
 
-      const { JSX, stylesheet, hook, test } = await generateComponent(
-        name,
-        options,
-      );
+        const { JSX, stylesheet, hook, test } = await generateComponent(
+          folder,
+          name,
+          options,
+        );
 
-      fs.writeFileSync(path.join(folder, JSX.file), JSX.content);
-      fs.writeFileSync(path.join(folder, stylesheet.file), stylesheet.content);
-      fs.writeFileSync(path.join(folder, hook.file), hook.content);
-      fs.writeFileSync(path.join(folder, test.file), test.content);
+        fs.writeFileSync(JSX.pathToFile, JSX.content);
+        fs.writeFileSync(stylesheet.pathToFile, stylesheet.content);
+        fs.writeFileSync(hook.pathToFile, hook.content);
+        fs.writeFileSync(test.pathToFile, test.content);
+      });
+    }
+
+    if (type === "hook") {
+      if (!/^use[A-Z]\w+$/.test(name)) {
+        console.log(
+          chalk.red("Hook must start with 'use' followed by a capital letter"),
+        );
+        process.exitCode = 1;
+        return;
+      }
+
+      const pathToHook = options.feature
+        ? `src/features/${options.feature}/${dir}`
+        : `src/shared/${dir}`;
+      const folder = path.join(process.cwd(), pathToHook);
+      applySpinner({ name, folder }, async () => {
+        fs.mkdirSync(folder, { recursive: true });
+        const hook = await generateHook(folder, name, options);
+        fs.writeFileSync(hook.pathToFile, hook.content);
+      });
     }
   });
 
