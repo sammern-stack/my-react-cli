@@ -8,8 +8,8 @@ import { generateComponent } from "../utils/generateComponent.js";
 import { applySpinner } from "../utils/applySpinner.js";
 import { DEFAULT_DIRS, TYPES } from "../constants/generator.js";
 import { generateHook } from "../utils/generateHook.js";
-import type { GeneratorOptions } from "../types/generator.js";
 import { isReactProject } from "../utils/validators.js";
+import type { GeneratorOptions } from "../types/generator.js";
 
 const require = createRequire(import.meta.url);
 const { version } = require("../../package.json") as { version: string };
