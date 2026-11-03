@@ -8,6 +8,7 @@ import {
 } from "../utils/generate/component.js";
 import chalk from "chalk";
 import { isReactProject } from "../utils/validators.js";
+import { generateHook } from "../utils/generate/hook.js";
 
 const TYPES = ["component", "hook"] as const;
 const STYLES = ["css", "scss"] as const;
@@ -78,6 +79,11 @@ export const registerGenerateCommand = (program: Command) => {
         : "src";
 
       if (type === "component") {
+        if (!/^[A-Z][a-zA-Z]*$/.test(name)) {
+          warning(`Invalid component name ${name}`);
+          process.exitCode = 1;
+          return;
+        }
         const folder = createDir(`${rootDir}/components/${name}`);
         if (!folder) {
           warning(`Folder ${name} already exists!`);
@@ -90,6 +96,20 @@ export const registerGenerateCommand = (program: Command) => {
       }
 
       if (type === "hook") {
+        if (!/^use[A-Z][a-zA-Z]*$/.test(name)) {
+          warning(`Invalid hook name ${name}`);
+          process.exitCode = 1;
+          return;
+        }
+        const folder = createDir(`${rootDir}/hooks/${name}`);
+        if (!folder) {
+          warning(`Folder ${name} already exists!`);
+          process.exitCode = 1;
+          return;
+        }
+        const hook = await generateHook(folder, name, options);
+        fs.writeFileSync(hook.path, hook.content);
+        info(`${name} created at ${chalk.gray(folder)}`);
       }
     });
 };
