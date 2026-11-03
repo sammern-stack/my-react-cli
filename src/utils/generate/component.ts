@@ -5,6 +5,7 @@ import buildStylesheetTemplate from "../../templates/stylesheet.js";
 import buildHookTemplate from "../../templates/hook.js";
 import { isTypescriptUsed } from "../validators.js";
 import type { Options } from "../../commands/generate.js";
+import { loadConfig } from "../loadConfig.js";
 
 type ComponentFile = "JSX" | "stylesheet" | "hook" | "test";
 
@@ -32,8 +33,10 @@ export const generateComponent = async (
   name: string,
   options: Options,
 ): Promise<Component> => {
-  const stylesheetExt = options.style ?? (await askForStyle());
-  const useTs = options.ts ?? isTypescriptUsed();
+  const config = loadConfig() ?? {};
+  const stylesheetExt =
+    options.style ?? config.stylesheet ?? (await askForStyle());
+  const useTs = options.ts ?? config.typescript ?? isTypescriptUsed();
   const langExt = useTs ? "ts" : "js";
 
   return {

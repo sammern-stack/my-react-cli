@@ -3,10 +3,6 @@ import fs from "fs";
 import chalk from "chalk";
 
 export interface CtConfig {
-  dir?: {
-    component: "components";
-    hook: "hooks";
-  };
   typescript?: boolean;
   stylesheet?: string;
 }
