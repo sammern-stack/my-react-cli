@@ -3,6 +3,8 @@ import prompts from "prompts";
 import buildComponentTemplate from "../../templates/component.js";
 import buildStylesheetTemplate from "../../templates/stylesheet.js";
 import buildHookTemplate from "../../templates/hook.js";
+import { isTypescriptUsed } from "../validators.js";
+import type { Options } from "../../commands/generate.js";
 
 type ComponentFile = "JSX" | "stylesheet" | "hook" | "test";
 
@@ -25,22 +27,14 @@ const askForStyle = async (): Promise<string> => {
   return answer.style;
 };
 
-const askForTs = async (): Promise<string> => {
-  const answer = await prompts({
-    type: "confirm",
-    name: "ts",
-    message: "Use Typescript?",
-    initial: true,
-  });
-  return answer.ts ? "ts" : "js";
-};
-
 export const generateComponent = async (
   folder: string,
   name: string,
+  options: Options,
 ): Promise<Component> => {
-  const stylesheetExt = await askForStyle();
-  const langExt = await askForTs();
+  const stylesheetExt = options.style ?? (await askForStyle());
+  const useTs = options.ts ?? isTypescriptUsed();
+  const langExt = useTs ? "ts" : "js";
 
   return {
     JSX: {

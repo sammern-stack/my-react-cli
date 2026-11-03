@@ -1,20 +1,24 @@
 import path from "path";
 import fs from "fs";
 import { Command } from "commander";
-import { error, warning } from "../utils/console.js";
-import { applySpinner } from "../utils/applySpinner.js";
+import { error, info, warning } from "../utils/console.js";
 import {
   generateComponent,
   type Component,
 } from "../utils/generate/component.js";
+import chalk from "chalk";
+import { isReactProject } from "../utils/validators.js";
 
 const TYPES = ["component", "hook"] as const;
-
-interface Options {
-  feature?: string;
-}
+const STYLES = ["css", "scss"] as const;
 
 type Type = (typeof TYPES)[number];
+export type Style = (typeof STYLES)[number];
+export interface Options {
+  feature?: string;
+  style?: Style;
+  ts?: boolean;
+}
 
 // Utilities
 const createDir = (pathToFolder: string) => {
@@ -40,10 +44,29 @@ export const registerGenerateCommand = (program: Command) => {
     .option(
       "-f, --feature <feature>",
       "generate the given <type> inside a feature",
+      (value) => value.replace(/=/, ""),
     )
-    .action((type: Type, name: string, options: Options) => {
+    .option(
+      "-s, --style <style>",
+      "use the specified stylesheet style",
+      (value) => value.replace(/=/, ""),
+    )
+    .option("--ts", "Use typescript")
+    .action(async (type: Type, name: string, options: Options) => {
+      if (!isReactProject()) {
+        error("This is not a React project\ncreate one or use 'ct new <name>'");
+        process.exitCode = 1;
+        return;
+      }
+
       if (!TYPES.includes(type)) {
         error(`Invalid type: ${type}`);
+        process.exitCode = 1;
+        return;
+      }
+
+      if (options.style && !STYLES.includes(options.style)) {
+        error(`Invalid style: ${options.style}`);
         process.exitCode = 1;
         return;
       }
@@ -59,10 +82,9 @@ export const registerGenerateCommand = (program: Command) => {
           process.exitCode = 1;
           return;
         }
-        applySpinner({ name, folder }, async () => {
-          const component = await generateComponent(folder, name);
-          createComponentFiles(component);
-        });
+        const component = await generateComponent(folder, name, options);
+        createComponentFiles(component);
+        info(`${name} created at ${chalk.gray(folder)}`);
       }
 
       if (type === "hook") {
