@@ -14,6 +14,7 @@ const STYLES = ["css", "scss"] as const;
 type Type = (typeof TYPES)[number];
 export type Style = (typeof STYLES)[number];
 export interface Options {
+  dir?: string;
   feature?: string;
   style?: Style;
   ts?: boolean;
@@ -41,6 +42,9 @@ export const registerGenerateCommand = (program: Command) => {
     .command("generate <type> <name>")
     .alias("g")
     .description("generate the given <type> content")
+    .option("-d, --dir <dir>", "target folder for the <type> folder", (value) =>
+      value.replace(/=/, ""),
+    )
     .option(
       "-f, --feature <feature>",
       "generate the given <type> inside a feature",
@@ -73,8 +77,8 @@ export const registerGenerateCommand = (program: Command) => {
       }
 
       const rootDir = options.feature
-        ? `src/features/${options.feature}`
-        : "src";
+        ? `src/features/${options.feature}/${options.dir ?? ""}`
+        : `src/${options.dir ?? ""}`;
 
       if (type === "component") {
         if (!/^[A-Z][a-zA-Z]*$/.test(name)) {
