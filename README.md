@@ -1,6 +1,6 @@
 # React CLI
 
-A simple command-line tool for generating React components and hooks.
+A command-line tool to scaffold React projects, components, and hooks.
 
 ## Install
 
@@ -8,55 +8,68 @@ A simple command-line tool for generating React components and hooks.
 npm install -g @pavlos-samaras/react-cli
 ```
 
-## Usage
+## Create a React project
+
+```bash
+ct new my-app
+```
+
+This runs the Vite project creator in a new `my-app/` directory and writes a
+`ct.config.json` file with the CLI defaults. Vite's prompts let you choose the
+framework and template. Dependencies are not installed automatically; install
+them before starting the project:
+
+```bash
+cd my-app
+npm install
+npm run dev
+```
+
+## Generate code
 
 ```bash
 ct generate <type> <name> [options]
 ```
 
-`g` is a shorthand for `generate`.
+`g` is an alias for `generate`.
 
 ### Types
 
-| Type        | Output                                                                                  |
-| ----------- | --------------------------------------------------------------------------------------- |
-| `component` | A folder with the component, a CSS/SCSS module, a hook and a test file                  |
-| `hook`      | A single hook file. The name must start with `use` followed by a capital (e.g. `useAuth`) |
+| Type | Name format | Generated files |
+| --- | --- | --- |
+| `component` | PascalCase (for example, `Button`) | A component, CSS/SCSS module, hook, and test file in a component folder |
+| `hook` | `use` followed by PascalCase (for example, `useAuth`) | A hook file in its own folder |
 
 ### Options
 
-| Option                    | Description                                                              |
-| ------------------------- | ------------------------------------------------------------------------ |
-| `-d, --dir <dir>`         | Target folder inside `src/` (or inside the feature). Default depends on the type: `components` or `hooks` |
-| `-f, --feature <feature>` | Put the output under `src/features/<feature>/`                           |
-| `--ts`                    | Use TypeScript without prompting                                         |
-| `-y, --yes`               | Use the defaults (TypeScript, SCSS) and skip all prompts                 |
+| Option | Description |
+| --- | --- |
+| `-f, --feature <feature>` | Generate under `src/features/<feature>/` |
+| `-s, --style <style>` | Component stylesheet format: `css` or `scss`. If omitted, the CLI prompts you. |
+| `--ts` | Generate TypeScript files. Otherwise, TypeScript is selected automatically when the project has a `tsconfig.json`. |
+| `--force` | Skip the check that requires the current directory to be detected as a React project. |
 
-Without `--ts` or `-y`, the CLI asks whether to use TypeScript and (for
-components) which stylesheet to use.
+For example:
+
+```bash
+# Create a component; choose the stylesheet format when prompted
+ct g component Button
+
+# Create a TypeScript component with a SCSS module
+ct g component LoginForm --feature auth --style scss --ts
+
+# Create a hook in a feature folder
+ct g hook useSession -f auth
+```
 
 ### Output locations
 
-| Command                                  | Output                                       |
-| ---------------------------------------- | -------------------------------------------- |
-| `ct g component Button`                  | `src/components/Button/`                     |
-| `ct g component Button -f auth`          | `src/features/auth/components/Button/`       |
-| `ct g component Button -d ui`            | `src/ui/Button/`                             |
-| `ct g hook useAuth`                      | `src/shared/hooks/useAuth.ts`                |
-| `ct g hook useAuth -f auth`              | `src/features/auth/hooks/useAuth.ts`         |
-
-### Examples
-
-```bash
-# Component with all defaults, no prompts
-ct g component Button -y
-
-# TypeScript component under a feature
-ct g component LoginForm --feature auth --ts
-
-# Hook under a feature
-ct g hook useSession -f auth -y
-```
+| Command | Output |
+| --- | --- |
+| `ct g component Button` | `src/components/Button/` |
+| `ct g component Button -f auth` | `src/features/auth/components/Button/` |
+| `ct g hook useAuth` | `src/hooks/useAuth/useAuth.js` (or `.ts` when TypeScript is enabled) |
+| `ct g hook useAuth -f auth` | `src/features/auth/hooks/useAuth/useAuth.js` (or `.ts` when TypeScript is enabled) |
 
 ## Development
 
@@ -66,7 +79,7 @@ Run the CLI directly from the TypeScript source:
 npm run dev -- generate component Button
 ```
 
-To link the local build globally instead:
+Build and link the local CLI globally:
 
 ```bash
 npm install
