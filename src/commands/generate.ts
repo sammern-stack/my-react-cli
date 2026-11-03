@@ -18,6 +18,7 @@ export interface Options {
   feature?: string;
   style?: Style;
   ts?: boolean;
+  force?: boolean;
 }
 
 // Utilities
@@ -52,8 +53,9 @@ export const registerGenerateCommand = (program: Command) => {
       (value) => value.replace(/=/, ""),
     )
     .option("--ts", "Use typescript")
+    .option("--force", "skip safety checks and overwrite")
     .action(async (type: Type, name: string, options: Options) => {
-      if (!isReactProject()) {
+      if (!isReactProject() && !options.force) {
         error("This is not a React project\ncreate one or use 'ct new <name>'");
         process.exitCode = 1;
         return;

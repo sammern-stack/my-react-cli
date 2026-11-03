@@ -24,7 +24,7 @@ const askForStyle = async (): Promise<string> => {
     ],
     initial: 1,
   });
-  return answer.style;
+  return answer.style ?? "css";
 };
 
 export const generateComponent = async (
