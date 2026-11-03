@@ -1,14 +1,12 @@
 import path from "path";
 import fs from "fs";
+import chalk from "chalk";
 import { Command } from "commander";
 import { error, info, warning } from "../utils/console.js";
-import {
-  generateComponent,
-  type Component,
-} from "../utils/generate/component.js";
-import chalk from "chalk";
 import { isReactProject } from "../utils/validators.js";
 import { generateHook } from "../utils/generate/hook.js";
+import { generateComponent } from "../utils/generate/component.js";
+import type { Component } from "../utils/generate/component.js";
 
 const TYPES = ["component", "hook"] as const;
 const STYLES = ["css", "scss"] as const;
