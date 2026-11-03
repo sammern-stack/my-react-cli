@@ -1,4 +1,5 @@
 import path from "path";
+import prompts from "prompts";
 import buildComponentTemplate from "../../templates/component.js";
 import buildStylesheetTemplate from "../../templates/stylesheet.js";
 import buildHookTemplate from "../../templates/hook.js";
@@ -9,25 +10,53 @@ export type Component = {
   [K in ComponentFile]: { path: string; content: string };
 };
 
+// Utilities
+const askForStyle = async (): Promise<string> => {
+  const answer = await prompts({
+    type: "select",
+    name: "style",
+    message: "What stylesheet to use?",
+    choices: [
+      { title: "CSS", value: "css" },
+      { title: "SCSS", value: "scss" },
+    ],
+    initial: 1,
+  });
+  return answer.style;
+};
+
+const askForTs = async (): Promise<string> => {
+  const answer = await prompts({
+    type: "confirm",
+    name: "ts",
+    message: "Use Typescript?",
+    initial: true,
+  });
+  return answer.ts ? "ts" : "js";
+};
+
 export const generateComponent = async (
   folder: string,
   name: string,
 ): Promise<Component> => {
+  const stylesheetExt = await askForStyle();
+  const langExt = await askForTs();
+
   return {
     JSX: {
-      path: path.join(folder, `${name}.tsx`),
-      content: buildComponentTemplate(name, "scss", "ts"),
+      path: path.join(folder, `${name}.${langExt}x`),
+      content: buildComponentTemplate(name, stylesheetExt, langExt),
     },
     stylesheet: {
-      path: path.join(folder, `${name}.module.scss`),
+      path: path.join(folder, `${name}.module.${stylesheetExt}`),
       content: buildStylesheetTemplate(name),
     },
     hook: {
-      path: path.join(folder, `use${name}.ts`),
+      path: path.join(folder, `use${name}.${langExt}`),
       content: buildHookTemplate(name),
     },
     test: {
-      path: path.join(folder, `${name}.test.ts`),
+      path: path.join(folder, `${name}.test.${langExt}`),
       content: "",
     },
   };
