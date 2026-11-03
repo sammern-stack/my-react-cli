@@ -59,7 +59,9 @@ export const registerGenerateCommand = (program: Command) => {
     .option("--force", "skip safety checks and overwrite")
     .action(async (type: Type, name: string, options: Options) => {
       if (!isReactProject() && !options.force) {
-        error("This is not a React project\ncreate one or use 'ct new <name>'");
+        error(
+          "This is not a React project\ncreate one with 'ct new <name>' or use --force",
+        );
         process.exitCode = 1;
         return;
       }
