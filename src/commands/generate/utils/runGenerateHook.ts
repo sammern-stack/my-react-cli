@@ -1,5 +1,6 @@
 import fs from "fs";
 import chalk from "chalk";
+import { VALID_HOOK_NAME } from "../generate.constants.js";
 import { info, warning } from "../../../utils/console.js";
 import { createDir } from "./general.js";
 import { generateHook } from "./generateHook.js";
@@ -10,7 +11,7 @@ export const runGenerateHook = async (
   name: string,
   options: Options,
 ) => {
-  if (!/^use[A-Z][a-zA-Z]*$/.test(name)) {
+  if (!VALID_HOOK_NAME.test(name)) {
     warning(`Invalid hook name ${name}`);
     process.exitCode = 1;
     return;
