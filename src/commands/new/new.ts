@@ -1,16 +1,17 @@
 import path from "path";
 import fs from "fs";
 import { spawnSync } from "child_process";
-import type { Command } from "commander";
 import { DEFAULT_CONFIG } from "../../constants/ct.config.js";
 import { error, info, warning } from "../../utils/console.js";
+import { VALID_REACT_NAME } from "./new.constants.js";
+import type { Command } from "commander";
 
 export const registerNewCommand = (program: Command) => {
   program
     .command("new <name>")
     .description("Create a new React project with Vite")
     .action((name: string) => {
-      if (!/^[a-z0-9][a-z0-9-_]*$/i.test(name)) {
+      if (!VALID_REACT_NAME.test(name)) {
         error(`Invalid name ${name}`);
         process.exitCode = 1;
         return;
