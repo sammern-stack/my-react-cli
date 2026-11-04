@@ -3,16 +3,7 @@ import chalk from "chalk";
 import { info, warning } from "../../../utils/console.js";
 import { createDir } from "./general.js";
 import { generateComponent } from "./generateComponent.js";
-import type { Component, Options } from "../generate.types.js";
-
-// Utility
-const createComponentFiles = (component: Component) => {
-  const { JSX, stylesheet, hook, test } = component;
-  fs.writeFileSync(JSX.path, JSX.content);
-  fs.writeFileSync(stylesheet.path, stylesheet.content);
-  fs.writeFileSync(hook.path, hook.content);
-  fs.writeFileSync(test.path, test.content);
-};
+import type { Options } from "../generate.types.js";
 
 export const runGenerateComponent = async (
   rootDir: string,
@@ -31,6 +22,8 @@ export const runGenerateComponent = async (
     return;
   }
   const component = await generateComponent(folder, name, options);
-  createComponentFiles(component);
+  for (const file of Object.values(component)) {
+    fs.writeFileSync(file.path, file.content);
+  }
   info(`${name} created at ${chalk.gray(folder)}`);
 };
