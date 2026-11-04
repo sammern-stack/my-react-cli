@@ -11,6 +11,7 @@ import type { Component } from "../utils/generate/component.js";
 const TYPES = ["component", "hook"] as const;
 const STYLES = ["css", "scss"] as const;
 
+type Check = { condition: boolean | undefined; message: string };
 type Type = (typeof TYPES)[number];
 export type Style = (typeof STYLES)[number];
 export interface Options {
@@ -37,6 +38,23 @@ const createComponentFiles = (component: Component) => {
   fs.writeFileSync(test.path, test.content);
 };
 
+const buildPreActionChecks = (
+  type: Type,
+  name: string,
+  options: Options,
+): Check[] => [
+  {
+    condition: !isReactProject() && !options.force,
+    message:
+      "This is not a React project\ncreate one with 'ct new <name>' or use --force",
+  },
+  { condition: !TYPES.includes(type), message: `Invalid type: ${type}` },
+  {
+    condition: options.style && !STYLES.includes(options.style),
+    message: `Invalid style: ${options.style}`,
+  },
+];
+
 export const registerGenerateCommand = (program: Command) => {
   program
     .command("generate <type> <name>")
@@ -58,24 +76,13 @@ export const registerGenerateCommand = (program: Command) => {
     .option("--ts", "Use typescript")
     .option("--force", "skip safety checks and overwrite")
     .action(async (type: Type, name: string, options: Options) => {
-      if (!isReactProject() && !options.force) {
-        error(
-          "This is not a React project\ncreate one with 'ct new <name>' or use --force",
-        );
-        process.exitCode = 1;
-        return;
-      }
-
-      if (!TYPES.includes(type)) {
-        error(`Invalid type: ${type}`);
-        process.exitCode = 1;
-        return;
-      }
-
-      if (options.style && !STYLES.includes(options.style)) {
-        error(`Invalid style: ${options.style}`);
-        process.exitCode = 1;
-        return;
+      const checks = buildPreActionChecks(type, name, options);
+      for (const check of checks) {
+        if (check.condition) {
+          error(check.message);
+          process.exitCode = 1;
+          return;
+        }
       }
 
       const rootDir = options.feature
