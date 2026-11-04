@@ -36,8 +36,8 @@ export const registerGenerateCommand = (program: Command) => {
       }
 
       const rootDir = options.feature
-        ? `src/features/${options.feature}/${options.dir ?? ""}`
-        : `src/${options.dir ?? ""}`;
+        ? `src/features/${options.feature}`
+        : `src`;
 
       if (type === "component") runGenerateComponent(rootDir, name, options);
       if (type === "hook") runGenerateHook(rootDir, name, options);
