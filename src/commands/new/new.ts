@@ -1,7 +1,6 @@
 import path from "path";
 import fs from "fs";
 import { spawnSync } from "child_process";
-import { DEFAULT_CONFIG } from "../../constants/ct.config.js";
 import { error, info, warning } from "../../utils/console.js";
 import { VALID_REACT_NAME } from "./new.constants.js";
 import type { Command } from "commander";
@@ -37,10 +36,7 @@ export const registerNewCommand = (program: Command) => {
         return;
       }
 
-      fs.writeFileSync(
-        path.join(target, "ct.config.json"),
-        JSON.stringify(DEFAULT_CONFIG, null, 2),
-      );
+      fs.writeFileSync(path.join(target, "ct.config.json"), "{}");
 
       if (!vitePassed) {
         warning(

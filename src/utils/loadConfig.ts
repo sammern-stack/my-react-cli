@@ -1,20 +1,33 @@
 import path from "path";
 import fs from "fs";
-import chalk from "chalk";
+import { error, warning } from "./console.js";
+import { CONFIG_PROPERTY_TYPES } from "../constants/config.constants.js";
+import type { Config, ConfigKeys } from "../types/config.types.js";
 
-export interface CtConfig {
-  typescript?: boolean;
-  stylesheet?: string;
-}
+// Utility
+const warnMissingProperties = (config: Config) => {
+  const configKeys = Object.keys(CONFIG_PROPERTY_TYPES) as ConfigKeys[];
+  for (const property of configKeys) {
+    const type = CONFIG_PROPERTY_TYPES[property];
+    if (!config[property]) {
+      warning(`Missing '${property}' of type ${type}, using fallback`);
+    }
+  }
+};
 
-export const loadConfig = (): CtConfig | undefined => {
+export const loadConfig = (): Config | undefined => {
   const configPath = path.join(process.cwd(), "ct.config.json");
-  if (!fs.existsSync(configPath)) return;
+  if (!fs.existsSync(configPath)) {
+    error("ts.config.json is missing!");
+    return;
+  }
 
   try {
-    return JSON.parse(fs.readFileSync(configPath, "utf-8"));
+    const config = JSON.parse(fs.readFileSync(configPath, "utf-8")) as Config;
+    warnMissingProperties(config);
+    return config;
   } catch {
-    console.log(chalk.yellow("ct.config.json is not valid JSON, ignoring it."));
+    warning("ct.config.json is not valid JSON, ignoring it.");
     return;
   }
 };
