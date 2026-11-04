@@ -4,12 +4,26 @@ import { spawnSync } from "child_process";
 import { error, info, warning } from "../../utils/console.js";
 import { VALID_REACT_NAME } from "./new.constants.js";
 import type { Command } from "commander";
+import type { Options } from "./new.types.js";
+
+// Utility
+const runCommand = (command: string, target?: string) =>
+  spawnSync(command, {
+    ...(target && { cwd: target }),
+    stdio: "inherit",
+    shell: true,
+  });
 
 export const registerNewCommand = (program: Command) => {
   program
     .command("new <name>")
     .description("Create a new React project with Vite")
-    .action((name: string) => {
+    .option(
+      "-t, --template <template>",
+      "apply a Vite template (default is react-ts",
+      "react-ts",
+    )
+    .action((name: string, options: Options) => {
       if (!VALID_REACT_NAME.test(name)) {
         error(`Invalid name ${name}`);
         process.exitCode = 1;
@@ -23,10 +37,9 @@ export const registerNewCommand = (program: Command) => {
         return;
       }
 
-      const result = spawnSync(`npm create vite@latest ${name}`, {
-        stdio: "inherit",
-        shell: true,
-      });
+      const result = runCommand(
+        `npm create vite@latest ${name} -- --template ${options.template}`,
+      );
 
       const vitePassed = result.status === 0;
 
@@ -43,11 +56,7 @@ export const registerNewCommand = (program: Command) => {
           "Install failed (dependency conflict). Retrying with --legacy-peer-deps...",
         );
 
-        const retry = spawnSync("npm install --legacy-peer-deps", {
-          cwd: target,
-          stdio: "inherit",
-          shell: true,
-        });
+        const retry = runCommand("npm install --legacy-peer-deps", target);
 
         if (retry.status !== 0) {
           error("Install failed again. Finish it manually:");
