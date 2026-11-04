@@ -55,6 +55,48 @@ const buildPreActionChecks = (
   },
 ];
 
+const runGenerateComponent = async (
+  rootDir: string,
+  name: string,
+  options: Options,
+) => {
+  if (!/^[A-Z][a-zA-Z]*$/.test(name)) {
+    warning(`Invalid component name ${name}`);
+    process.exitCode = 1;
+    return;
+  }
+  const folder = createDir(`${rootDir}/components/${name}`);
+  if (!folder) {
+    warning(`Folder ${name} already exists!`);
+    process.exitCode = 1;
+    return;
+  }
+  const component = await generateComponent(folder, name, options);
+  createComponentFiles(component);
+  info(`${name} created at ${chalk.gray(folder)}`);
+};
+
+const runGenerateHook = async (
+  rootDir: string,
+  name: string,
+  options: Options,
+) => {
+  if (!/^use[A-Z][a-zA-Z]*$/.test(name)) {
+    warning(`Invalid hook name ${name}`);
+    process.exitCode = 1;
+    return;
+  }
+  const folder = createDir(`${rootDir}/hooks/${name}`);
+  if (!folder) {
+    warning(`Folder ${name} already exists!`);
+    process.exitCode = 1;
+    return;
+  }
+  const hook = await generateHook(folder, name, options);
+  fs.writeFileSync(hook.path, hook.content);
+  info(`${name} created at ${chalk.gray(folder)}`);
+};
+
 export const registerGenerateCommand = (program: Command) => {
   program
     .command("generate <type> <name>")
@@ -89,38 +131,7 @@ export const registerGenerateCommand = (program: Command) => {
         ? `src/features/${options.feature}/${options.dir ?? ""}`
         : `src/${options.dir ?? ""}`;
 
-      if (type === "component") {
-        if (!/^[A-Z][a-zA-Z]*$/.test(name)) {
-          warning(`Invalid component name ${name}`);
-          process.exitCode = 1;
-          return;
-        }
-        const folder = createDir(`${rootDir}/components/${name}`);
-        if (!folder) {
-          warning(`Folder ${name} already exists!`);
-          process.exitCode = 1;
-          return;
-        }
-        const component = await generateComponent(folder, name, options);
-        createComponentFiles(component);
-        info(`${name} created at ${chalk.gray(folder)}`);
-      }
-
-      if (type === "hook") {
-        if (!/^use[A-Z][a-zA-Z]*$/.test(name)) {
-          warning(`Invalid hook name ${name}`);
-          process.exitCode = 1;
-          return;
-        }
-        const folder = createDir(`${rootDir}/hooks/${name}`);
-        if (!folder) {
-          warning(`Folder ${name} already exists!`);
-          process.exitCode = 1;
-          return;
-        }
-        const hook = await generateHook(folder, name, options);
-        fs.writeFileSync(hook.path, hook.content);
-        info(`${name} created at ${chalk.gray(folder)}`);
-      }
+      if (type === "component") runGenerateComponent(rootDir, name, options);
+      if (type === "hook") runGenerateHook(rootDir, name, options);
     });
 };
