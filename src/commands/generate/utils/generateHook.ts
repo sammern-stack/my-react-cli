@@ -1,8 +1,8 @@
 import path from "path";
-import { isTypescriptUsed } from "../validators.js";
-import buildHookTemplate from "../../templates/hook.js";
-import type { Options } from "../../commands/generate.js";
-import { loadConfig } from "../loadConfig.js";
+import { loadConfig } from "../../../utils/loadConfig.js";
+import { isTypescriptUsed } from "../../../utils/validators.js";
+import buildHookTemplate from "../../../templates/hook.js";
+import type { Options } from "../generate.types.js";
 
 export const generateHook = async (
   folder: string,

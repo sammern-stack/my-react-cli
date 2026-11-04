@@ -1,17 +1,11 @@
 import path from "path";
 import prompts from "prompts";
-import buildComponentTemplate from "../../templates/component.js";
-import buildStylesheetTemplate from "../../templates/stylesheet.js";
-import buildHookTemplate from "../../templates/hook.js";
-import { isTypescriptUsed } from "../validators.js";
-import type { Options } from "../../commands/generate.js";
-import { loadConfig } from "../loadConfig.js";
-
-type ComponentFile = "JSX" | "stylesheet" | "hook" | "test";
-
-export type Component = {
-  [K in ComponentFile]: { path: string; content: string };
-};
+import { loadConfig } from "../../../utils/loadConfig.js";
+import { isTypescriptUsed } from "../../../utils/validators.js";
+import buildComponentTemplate from "../../../templates/component.js";
+import buildStylesheetTemplate from "../../../templates/stylesheet.js";
+import buildHookTemplate from "../../../templates/hook.js";
+import type { Component, Options } from "../generate.types.js";
 
 // Utilities
 const askForStyle = async (): Promise<string> => {

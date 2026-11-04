@@ -3,7 +3,7 @@ import fs from "fs";
 import chalk from "chalk";
 import { spawnSync } from "child_process";
 import type { Command } from "commander";
-import { DEFAULT_CONFIG } from "../constants/ct.config.js";
+import { DEFAULT_CONFIG } from "../../constants/ct.config.js";
 
 export const registerNewCommand = (program: Command) => {
   program

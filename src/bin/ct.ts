@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 import { createRequire } from "module";
 import { Command } from "commander";
-import { registerGenerateCommand } from "../commands/generate.js";
-import { registerNewCommand } from "../commands/new.js";
+import { registerGenerateCommand } from "../commands/generate/generate.js";
+import { registerNewCommand } from "../commands/new/new.js";
 
 const require = createRequire(import.meta.url);
 const { version } = require("../../package.json") as { version: string };

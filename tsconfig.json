@@ -20,7 +20,10 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
-    "types": ["node"]
+    "types": ["node"],
+    "paths": {
+      "@": ["./src/"]
+    }
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]
