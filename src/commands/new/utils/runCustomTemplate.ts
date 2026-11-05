@@ -4,7 +4,7 @@ import type { Options } from "../new.types.js";
 
 // Utility
 const removeDefaultFiles = (target: string, files: string[]) => {
-  for (const file in files) fs.rmSync(path.join(target, file), { force: true });
+  for (const file of files) fs.rmSync(path.join(target, file), { force: true });
   fs.rmSync(path.join(target, "src/assets"), { recursive: true, force: true });
 };
 
