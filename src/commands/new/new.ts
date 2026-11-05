@@ -1,17 +1,36 @@
 import path from "path";
 import fs from "fs";
-import { spawnSync } from "child_process";
 import { error, info, warning } from "../../utils/console.js";
-import { VALID_REACT_NAME } from "./new.constants.js";
+import {
+  CUSTOM_TEMPLATES,
+  TEMPLATES,
+  VALID_REACT_NAME,
+} from "./new.constants.js";
+import { runCustomTemplate } from "./utils/runCustomTemplate.js";
+import { runCreateVite } from "./utils/runCreateVite.js";
+import { isCustomTemplate, isInvalidTemplate } from "./utils/general.js";
 import type { Command } from "commander";
+import type { Options } from "./new.types.js";
 
 export const registerNewCommand = (program: Command) => {
   program
     .command("new <name>")
     .description("Create a new React project with Vite")
-    .action((name: string) => {
+    .option(
+      "-t, --template <template>",
+      "apply a react Vite template. Use (custom-ts or custom-js) for a custom src layout",
+    )
+    .action((name: string, options: Options) => {
       if (!VALID_REACT_NAME.test(name)) {
         error(`Invalid name ${name}`);
+        process.exitCode = 1;
+        return;
+      }
+
+      if (isInvalidTemplate(options.template)) {
+        const templates = [...TEMPLATES, ...CUSTOM_TEMPLATES].join(", ");
+        error(`Invalid template ${options.template}`);
+        info(`You can choose between: ${templates}`);
         process.exitCode = 1;
         return;
       }
@@ -23,40 +42,11 @@ export const registerNewCommand = (program: Command) => {
         return;
       }
 
-      const result = spawnSync(`npm create vite@latest ${name}`, {
-        stdio: "inherit",
-        shell: true,
-      });
-
-      const vitePassed = result.status === 0;
-
-      if (!vitePassed && !fs.existsSync(target)) {
-        error("Vite failed before creating the project.");
-        process.exitCode = 1;
-        return;
-      }
+      runCreateVite(name, target, options.template);
 
       fs.writeFileSync(path.join(target, "ct.config.json"), "{}");
-
-      if (!vitePassed) {
-        warning(
-          "Install failed (dependency conflict). Retrying with --legacy-peer-deps...",
-        );
-
-        const retry = spawnSync("npm install --legacy-peer-deps", {
-          cwd: target,
-          stdio: "inherit",
-          shell: true,
-        });
-
-        if (retry.status !== 0) {
-          error("Install failed again. Finish it manually:");
-          info(`cd ${name}\nnpm install --legacy-peer-deps`);
-          process.exitCode = 1;
-          return;
-        }
+      if (isCustomTemplate(options.template)) {
+        runCustomTemplate(target, options);
       }
-
-      info(`\nDone! Next steps:\n\ncd ${name}\nnpm run dev`);
     });
 };

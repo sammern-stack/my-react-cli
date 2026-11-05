@@ -16,7 +16,7 @@ export const runGenerateHook = async (
     process.exitCode = 1;
     return;
   }
-  const folder = createDir(`${rootDir}/${options.dir ?? "hook"}/${name}`);
+  const folder = createDir(`${rootDir}/${options.dir ?? "hooks"}/${name}`);
   if (!folder) {
     warning(`Folder ${name} already exists!`);
     process.exitCode = 1;

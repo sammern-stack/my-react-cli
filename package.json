@@ -32,6 +32,7 @@
     "typescript": "^7.0.2"
   },
   "files": [
-    "dist"
+    "dist",
+    "templates"
   ]
 }

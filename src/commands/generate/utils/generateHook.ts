@@ -1,8 +1,9 @@
 import path from "path";
+import fs from "fs";
 import { loadConfig } from "../../../utils/loadConfig.js";
 import { isTypescriptUsed } from "../../../utils/validators.js";
-import buildHookTemplate from "../../../templates/hook.js";
 import type { Options } from "../generate.types.js";
+import { getTemplate } from "../../../utils/general.js";
 
 export const generateHook = async (
   folder: string,
@@ -15,6 +16,6 @@ export const generateHook = async (
 
   return {
     path: path.join(folder, `${name}.${langExt}`),
-    content: buildHookTemplate(name),
+    content: getTemplate("hook").replace(/__NAME__/g, name),
   };
 };
