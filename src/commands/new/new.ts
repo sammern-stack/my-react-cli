@@ -5,7 +5,6 @@ import { error, info, warning } from "../../utils/console.js";
 import { VALID_REACT_NAME } from "./new.constants.js";
 import type { Command } from "commander";
 import type { Options } from "./new.types.js";
-
 // Utility
 const runCommand = (command: string, target?: string) =>
   spawnSync(command, {
@@ -65,6 +64,16 @@ export const registerNewCommand = (program: Command) => {
           return;
         }
       }
+
+      const mainTemplate = fs.readFileSync(
+        new URL("../../../templates/main.tpl", import.meta.url),
+        "utf-8",
+      );
+      const fileExt = options.template.endsWith("-ts") ? "tsx" : "jsx";
+      fs.writeFileSync(
+        path.join(target, "src", `main.${fileExt}`),
+        mainTemplate.replace("App.tsx", `App.${fileExt}`),
+      );
 
       info(`\nDone! Next steps:\n\ncd ${name}\nnpm run dev`);
     });

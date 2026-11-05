@@ -2,9 +2,7 @@ import path from "path";
 import prompts from "prompts";
 import { loadConfig } from "../../../utils/loadConfig.js";
 import { isTypescriptUsed } from "../../../utils/validators.js";
-import buildComponentTemplate from "../../../templates/component.js";
-import buildStylesheetTemplate from "../../../templates/stylesheet.js";
-import buildHookTemplate from "../../../templates/hook.js";
+import { getTemplate } from "../../../utils/general.js";
 import type { Component, Options } from "../generate.types.js";
 
 // Utilities
@@ -36,15 +34,21 @@ export const generateComponent = async (
   return {
     JSX: {
       path: path.join(folder, `${name}.${langExt}x`),
-      content: buildComponentTemplate(name, stylesheetExt, langExt),
+      content: getTemplate("component")
+        .replace(/__NAME__/g, name)
+        .replace(/__CLASSNAME__/, name.toLowerCase())
+        .replace(/.scss/g, `.${stylesheetExt}`),
     },
     stylesheet: {
       path: path.join(folder, `${name}.module.${stylesheetExt}`),
-      content: buildStylesheetTemplate(name),
+      content: getTemplate("stylesheet").replace(
+        /__CLASSNAME__/,
+        name.toLowerCase(),
+      ),
     },
     hook: {
       path: path.join(folder, `use${name}.${langExt}`),
-      content: buildHookTemplate(name),
+      content: getTemplate("hook").replace(/__NAME__/g, name),
     },
     test: {
       path: path.join(folder, `${name}.test.${langExt}`),
