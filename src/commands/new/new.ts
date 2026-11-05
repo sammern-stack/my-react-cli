@@ -2,9 +2,14 @@ import path from "path";
 import fs from "fs";
 import { spawnSync } from "child_process";
 import { error, info, warning } from "../../utils/console.js";
-import { VALID_REACT_NAME } from "./new.constants.js";
+import {
+  CUSTOM_TEMPLATES,
+  TEMPLATES,
+  VALID_REACT_NAME,
+} from "./new.constants.js";
 import type { Command } from "commander";
-import type { Options } from "./new.types.js";
+import type { CustomTemplate, Options, Template } from "./new.types.js";
+
 // Utility
 const runCommand = (command: string, target?: string) =>
   spawnSync(command, {
@@ -19,12 +24,23 @@ export const registerNewCommand = (program: Command) => {
     .description("Create a new React project with Vite")
     .option(
       "-t, --template <template>",
-      "apply a Vite template (default is react-ts",
-      "react-ts",
+      "apply a react Vite template. Use (custom-ts or custom-js) for a custom src layout",
     )
     .action((name: string, options: Options) => {
       if (!VALID_REACT_NAME.test(name)) {
         error(`Invalid name ${name}`);
+        process.exitCode = 1;
+        return;
+      }
+
+      if (
+        options.template &&
+        !CUSTOM_TEMPLATES.includes(options.template as CustomTemplate) &&
+        !TEMPLATES.includes(options.template as Template)
+      ) {
+        const templates = [...TEMPLATES, ...CUSTOM_TEMPLATES].join(", ");
+        error(`Invalid template ${options.template}`);
+        info(`You can choose between: ${templates}`);
         process.exitCode = 1;
         return;
       }
@@ -36,9 +52,12 @@ export const registerNewCommand = (program: Command) => {
         return;
       }
 
-      const result = runCommand(
-        `npm create vite@latest ${name} -- --template ${options.template}`,
-      );
+      const createViteCommand = options.template
+        ? TEMPLATES.includes(options.template as Template)
+          ? `npm create vite@latest ${name} -- --template ${options.template} --no-interactive`
+          : `npm create vite@latest ${name} -- --template ${options.template.endsWith("-ts") ? "react-ts" : "react"} --no-interactive`
+        : `npm create vite@latest ${name}`;
+      const result = runCommand(createViteCommand);
 
       const vitePassed = result.status === 0;
 
@@ -65,16 +84,28 @@ export const registerNewCommand = (program: Command) => {
         }
       }
 
-      const mainTemplate = fs.readFileSync(
-        new URL("../../../templates/main.tpl", import.meta.url),
-        "utf-8",
-      );
-      const fileExt = options.template.endsWith("-ts") ? "tsx" : "jsx";
-      fs.writeFileSync(
-        path.join(target, "src", `main.${fileExt}`),
-        mainTemplate.replace("App.tsx", `App.${fileExt}`),
-      );
+      if (
+        options.template &&
+        CUSTOM_TEMPLATES.includes(options.template as CustomTemplate)
+      ) {
+        const variant = options.template.endsWith("-ts") ? "react-ts" : "react";
+        const overlay = new URL(
+          `../../../templates/${variant}`,
+          import.meta.url,
+        );
 
-      info(`\nDone! Next steps:\n\ncd ${name}\nnpm run dev`);
+        const ext = options.template.endsWith("-ts") ? "tsx" : "jsx";
+
+        for (const file of [
+          `src/App.${ext}`,
+          "src/App.css",
+          "src/index.css",
+          ".oxlintrc.json",
+        ]) {
+          fs.rmSync(path.join(target, file), { force: true });
+        }
+
+        fs.cpSync(overlay, target, { recursive: true });
+      }
     });
 };
