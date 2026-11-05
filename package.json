@@ -1,6 +1,6 @@
 {
   "name": "@pavlos-samaras/react-cli",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "author": "sammern-stack",
   "description": "A CLI to generate React code",
   "keywords": [
