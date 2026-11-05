@@ -16,7 +16,7 @@ export const runGenerateComponent = async (
     process.exitCode = 1;
     return;
   }
-  const folder = createDir(`${rootDir}/${options.dir ?? "component"}/${name}`);
+  const folder = createDir(`${rootDir}/${options.dir ?? "components"}/${name}`);
   if (!folder) {
     warning(`Folder ${name} already exists!`);
     process.exitCode = 1;
