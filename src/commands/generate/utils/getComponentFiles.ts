@@ -32,11 +32,12 @@ export const getComponentFiles = async (
     options.style ?? config.stylesheet ?? (await askForStyle());
   const useTs = options.ts ?? config.typescript ?? isTypescriptUsed();
   const langExt = useTs ? "ts" : "js";
+  const isPage = folder.includes("page");
 
   return [
     {
       path: path.join(folder, `${name}.${langExt}x`),
-      content: getTemplate("component")
+      content: (isPage ? getTemplate("page") : getTemplate("component"))
         .replace(/__NAME__/g, name)
         .replace(/__CLASSNAME__/, name.toLowerCase())
         .replace(/.scss/g, `.${stylesheetExt}`),

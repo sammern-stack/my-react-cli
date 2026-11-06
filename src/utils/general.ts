@@ -1,6 +1,6 @@
 import fs from "fs";
 
-type Template = "component" | "hook" | "stylesheet" | "main";
+type Template = "component" | "hook" | "stylesheet" | "main" | "page";
 
 export const getTemplate = (template: Template) =>
   fs.readFileSync(
