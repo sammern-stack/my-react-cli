@@ -29,7 +29,7 @@ export const registerPage = (name: string, importPath: string) => {
 
   const file = startProject(routesPath);
 
-  if (file.getVariableDeclaration(name)) {
+  if (file.getVariableDeclaration(`${name}Page`)) {
     return warning(`${name} is already in ${routesName}.`);
   }
 
