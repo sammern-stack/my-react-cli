@@ -38,7 +38,9 @@ export const buildPreActionChecks = (
     message: `Invalid style: ${options.style}`,
   },
   {
-    condition: type === "component" && !VALID_COMPONENT_NAME.test(name),
+    condition:
+      (type === "component" || type === "page") &&
+      !VALID_COMPONENT_NAME.test(name),
     message: `Invalid component name: ${name}`,
   },
   {

@@ -60,5 +60,14 @@ export const registerGenerateCommand = (program: Command) => {
         const hookFiles = await getHookFiles(dir, name, options);
         generate(dir, name, hookFiles);
       }
+
+      if (type === "page") {
+        const pageDir = path.join(
+          process.cwd(),
+          `src/${DEFAULT_DIRS.page}/${name}`,
+        );
+        const pageFiles = await getComponentFiles(pageDir, name, options);
+        generate(pageDir, name, pageFiles);
+      }
     });
 };
