@@ -1,6 +1,6 @@
 # React CLI
 
-A command-line tool to scaffold React projects, components, and hooks.
+A command-line tool to scaffold React projects, components, hooks, and pages.
 
 ## Table of contents
 
@@ -11,7 +11,9 @@ A command-line tool to scaffold React projects, components, and hooks.
   - [Options](#options)
   - [Examples](#examples)
   - [Output locations](#output-locations)
-- [Configure generation defaults](#configure-generation-defaults)
+  - [Pages and routes](#pages-and-routes)
+  - [Formatting with Prettier](#formatting-with-prettier)
+  - [Configure generation defaults](#configure-generation-defaults)
 
 ## Install
 
@@ -75,20 +77,21 @@ ct generate <type> <name> [options]
 | --- | --- | --- |
 | `component` | PascalCase (for example, `Button`) | A component, CSS/SCSS module, hook, and test file in a component folder |
 | `hook` | `use` followed by PascalCase (for example, `useAuth`) | A hook file in its own folder |
+| `page` | PascalCase (for example, `Settings`) | The same files as a component, in `src/pages/`, plus a lazy-loaded route (see [Pages and routes](#pages-and-routes)) |
 
 ### Options
 
 | Option | Description |
 | --- | --- |
-| `-d, --dir <dir>` | Choose the folder for the generated type. Defaults to `components` for components and `hooks` for hooks. |
-| `-f, --feature <feature>` | Generate under `src/features/<feature>/` instead of directly under `src/`. |
+| `-d, --dir <dir>` | Choose the folder for the generated type. Defaults to `components` for components and `hooks` for hooks. Not used for pages. |
+| `-f, --feature <feature>` | Generate under `src/features/<feature>/` instead of directly under `src/`. Not used for pages. |
 | `-s, --style <style>` | Component stylesheet format: `css` or `scss`. Overrides `ct.config.json`; if neither is set, the CLI prompts. |
 | `--ts` | Force TypeScript output. Otherwise, uses `ct.config.json` when set, then detects TypeScript from `tsconfig.json`. |
-| `--force` | Skip the check that requires the current directory to be detected as a React project. It does not overwrite existing output folders. |
+| `--force` | Skip the React project check and overwrite the output folder if it already exists. |
 
-Components and hooks are generated only if their destination folder does not
-already exist. The CLI recognizes a React project by the `react` dependency in
-its `package.json`.
+If the destination folder already exists, the command stops unless you pass
+`--force`. The CLI recognizes a React project by the `react` dependency in its
+`package.json`.
 
 ### Examples
 
@@ -104,6 +107,12 @@ ct g component Button --dir ui
 
 # Create a hook in a feature folder
 ct g hook useSession -f auth
+
+# Create a page and register its route
+ct g page Settings
+
+# Regenerate an existing component
+ct g component Button --force
 ```
 
 ### Output locations
@@ -118,6 +127,34 @@ places those folders under `src/features/<feature>/`.
 | `ct g component Button -d ui` | `src/ui/Button/` |
 | `ct g hook useAuth` | `src/hooks/useAuth/useAuth.js` (or `.ts` when TypeScript is enabled) |
 | `ct g hook useAuth -f auth` | `src/features/auth/hooks/useAuth/useAuth.js` (or `.ts` when TypeScript is enabled) |
+| `ct g page Settings` | `src/pages/Settings/` |
+
+### Pages and routes
+
+`ct g page <Name>` creates the page in `src/pages/<Name>/` and then registers
+it in your router:
+
+1. Finds the routes file: the first of `src/app/routes.tsx`,
+   `src/app/routes.jsx`, `src/App.tsx`, or `src/App.jsx` that contains a
+   `<Routes>` element.
+2. Adds `lazy` to the `react` import if needed and adds
+   `const <Name>Page = lazy(() => import("../pages/<Name>/<Name>"));` below
+   the existing lazy imports.
+3. Adds `<Route path="/<kebab-name>" element={<<Name>Page />} />` inside
+   `<Routes>`, after the last route. If the last route is the catch-all
+   `path="*"`, the new route is placed before it.
+
+For example, `ct g page UserSettings` adds the `/user-settings` route. If no
+routes file is found, the page files are still created and the CLI warns that
+route registration was skipped. If `<Name>Page` is already declared in the
+routes file, it is not added again.
+
+### Formatting with Prettier
+
+After the routes file is updated, the CLI runs the project's own Prettier on it
+(`npx --no-install prettier --write`). If Prettier is not installed, the CLI
+prints a warning and leaves the file unformatted; install it with
+`npm i -D prettier`.
 
 ### Configure generation defaults
 
