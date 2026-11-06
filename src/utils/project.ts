@@ -1,4 +1,10 @@
-import { JsxElement, Project, SourceFile, SyntaxKind } from "ts-morph";
+import {
+  JsxElement,
+  JsxSelfClosingElement,
+  Project,
+  SourceFile,
+  SyntaxKind,
+} from "ts-morph";
 
 import { formatFile } from "./formatFile.js";
 
@@ -19,3 +25,16 @@ export const getJSX = (
   file
     .getDescendantsOfKind(SyntaxKind.JsxElement)
     .find((el) => el.getOpeningElement().getTagNameNode().getText() === name);
+
+export const getOpening = (el: JsxSelfClosingElement | JsxElement) =>
+  el.isKind(SyntaxKind.JsxElement) ? el.getOpeningElement() : el;
+
+export const getTagName = (el: JsxSelfClosingElement | JsxElement) =>
+  getOpening(el).getTagNameNode().getText();
+
+export const getPathValue = (el: JsxSelfClosingElement | JsxElement) =>
+  getOpening(el)
+    .getAttribute("path")
+    ?.asKind(SyntaxKind.JsxAttribute)
+    ?.getInitializer()
+    ?.getText();
