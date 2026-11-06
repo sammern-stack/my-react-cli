@@ -14,10 +14,11 @@
     "ct": "./dist/bin/ct.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && npm run build:schema",
+    "build:schema": "ts-json-schema-generator --path src/types/config.types.ts --type Config --no-top-ref -o ct.config.schema.json",
+    "build:link": "npm run build && npm link",
     "prepublishOnly": "npm run build",
-    "dev": "tsx src/bin/ct.ts",
-    "build:link": "npm run build && npm link"
+    "dev": "tsx src/bin/ct.ts"
   },
   "dependencies": {
     "chalk": "^6.0.1",
@@ -29,11 +30,13 @@
   "devDependencies": {
     "@types/node": "^26.6.6",
     "@types/prompts": "^2.4.9",
+    "ts-json-schema-generator": "^2.9.0",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2"
   },
   "files": [
     "dist",
-    "templates"
+    "templates",
+    "ct.config.schema.json"
   ]
 }

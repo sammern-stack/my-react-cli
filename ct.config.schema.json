@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "definitions": {},
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "stylesheet": {
+      "description": "Default stylesheet format for components and pages.",
+      "enum": [
+        "css",
+        "scss"
+      ],
+      "type": "string"
+    },
+    "typescript": {
+      "description": "Generate TypeScript files by default.",
+      "type": "boolean"
+    }
+  },
+  "type": "object"
+}

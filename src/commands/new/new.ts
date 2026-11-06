@@ -44,7 +44,17 @@ export const registerNewCommand = (program: Command) => {
 
       runCreateVite(name, target, options.template);
 
-      fs.writeFileSync(path.join(target, "ct.config.json"), "{}");
+      fs.writeFileSync(
+        path.join(target, "ct.config.json"),
+        JSON.stringify(
+          {
+            $schema:
+              "https://unpkg.com/@pavlos-samaras/react-cli/ct.config.schema.json",
+          },
+          null,
+          2,
+        ),
+      );
       if (isCustomTemplate(options.template)) {
         runCustomTemplate(target, options);
       }

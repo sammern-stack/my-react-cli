@@ -54,7 +54,8 @@ ct new my-app --template react-swc-ts
 ct new my-app -t custom-ts
 ```
 
-The command creates a `ct.config.json` file in the project. After scaffolding,
+The command creates a `ct.config.json` file in the project (see
+[Configure generation defaults](#configure-generation-defaults)). After scaffolding,
 follow Vite's output to install dependencies if needed and start the dev server:
 
 ```bash
@@ -159,15 +160,27 @@ prints a warning and leaves the file unformatted; install it with
 ### Configure generation defaults
 
 Set optional defaults in the project's `ct.config.json`. The `ct new` command
-creates this file as `{}`.
+creates this file with a `$schema` reference, which gives your editor
+autocomplete, hover documentation, and warnings for unknown properties:
 
 ```json
 {
+  "$schema": "https://unpkg.com/@pavlos-samaras/react-cli/ct.config.schema.json",
   "typescript": true,
   "stylesheet": "scss"
 }
 ```
 
-`typescript` can be `true` or `false`; when omitted, the CLI checks for
-`tsconfig.json`. The `--ts` option overrides this setting to enable TypeScript.
-`stylesheet` can be `css` or `scss`, and `--style` overrides it for components.
+For a `ct.config.json` created before this was added, add the `$schema` line
+yourself.
+
+| Property | Type | Description |
+| --- | --- | --- |
+| `typescript` | `boolean` | Generate TypeScript files by default. When omitted, the CLI checks for `tsconfig.json`. The `--ts` option overrides it. |
+| `stylesheet` | `"css"` or `"scss"` | Default stylesheet format for components and pages. The `--style` option overrides it. |
+
+The CLI also validates the file when it runs. Unknown properties, values of the
+wrong type, and invalid values (for example, `"stylesheet": "sass"`) print a
+warning and are ignored, so the fallback behavior is used instead. Missing
+properties also print a warning. A file that is not valid JSON, or not a JSON
+object, is ignored.
