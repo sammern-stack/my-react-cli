@@ -1,12 +1,15 @@
 import path from "path";
 import fs from "fs";
 import { Command } from "commander";
-import { error } from "../../utils/console.js";
-import { buildPreActionChecks } from "./utils/general.js";
-import { runGenerateComponent } from "./utils/runGenerateComponent.js";
-import { runGenerateHook } from "./utils/runGenerateHook.js";
-import type { Options, Type } from "./generate.types.js";
+
 import { DEFAULT_DIRS } from "./generate.constants.js";
+
+import { error } from "../../utils/console.js";
+import { buildPreActionChecks, generate } from "./utils/general.js";
+import { getComponentFiles } from "./utils/getComponentFiles.js";
+import { getHookFiles } from "./utils/getHookFiles.js";
+
+import type { Options, Type } from "./generate.types.js";
 
 export const registerGenerateCommand = (program: Command) => {
   program
@@ -28,11 +31,11 @@ export const registerGenerateCommand = (program: Command) => {
     )
     .option("--ts", "Use typescript")
     .option("--force", "skip safety checks and overwrite")
-    .action((type: Type, name: string, options: Options) => {
-      const checks = buildPreActionChecks(type, options);
-      for (const check of checks) {
-        if (check.condition) {
-          error(check.message);
+    .action(async (type: Type, name: string, options: Options) => {
+      const checks = buildPreActionChecks(type, name, options);
+      for (const { condition, message } of checks) {
+        if (condition) {
+          error(message);
           process.exitCode = 1;
           return;
         }
@@ -48,7 +51,14 @@ export const registerGenerateCommand = (program: Command) => {
         return;
       }
 
-      if (type === "component") runGenerateComponent(dir, name, options);
-      if (type === "hook") runGenerateHook(dir, name, options);
+      if (type === "component") {
+        const componentFiles = await getComponentFiles(dir, name, options);
+        generate(dir, name, componentFiles);
+      }
+
+      if (type === "hook") {
+        const hookFiles = await getHookFiles(dir, name, options);
+        generate(dir, name, hookFiles);
+      }
     });
 };

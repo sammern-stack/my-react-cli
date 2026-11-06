@@ -1,9 +1,11 @@
 import path from "path";
 import prompts from "prompts";
+
 import { loadConfig } from "../../../utils/loadConfig.js";
 import { isTypescriptUsed } from "../../../utils/validators.js";
 import { getTemplate } from "../../../utils/general.js";
-import type { Component, Options } from "../generate.types.js";
+
+import type { File, Options } from "../generate.types.js";
 
 // Utilities
 const askForStyle = async (): Promise<string> => {
@@ -20,39 +22,39 @@ const askForStyle = async (): Promise<string> => {
   return answer.style ?? "css";
 };
 
-export const generateComponent = async (
+export const getComponentFiles = async (
   folder: string,
   name: string,
   options: Options,
-): Promise<Component> => {
+): Promise<File[]> => {
   const config = loadConfig() ?? {};
   const stylesheetExt =
     options.style ?? config.stylesheet ?? (await askForStyle());
   const useTs = options.ts ?? config.typescript ?? isTypescriptUsed();
   const langExt = useTs ? "ts" : "js";
 
-  return {
-    JSX: {
+  return [
+    {
       path: path.join(folder, `${name}.${langExt}x`),
       content: getTemplate("component")
         .replace(/__NAME__/g, name)
         .replace(/__CLASSNAME__/, name.toLowerCase())
         .replace(/.scss/g, `.${stylesheetExt}`),
     },
-    stylesheet: {
+    {
       path: path.join(folder, `${name}.module.${stylesheetExt}`),
       content: getTemplate("stylesheet").replace(
         /__CLASSNAME__/,
         name.toLowerCase(),
       ),
     },
-    hook: {
+    {
       path: path.join(folder, `use${name}.${langExt}`),
       content: getTemplate("hook").replace(/__NAME__/g, name),
     },
-    test: {
+    {
       path: path.join(folder, `${name}.test.${langExt}`),
       content: "",
     },
-  };
+  ];
 };

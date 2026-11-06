@@ -13,8 +13,4 @@ export interface Options {
   force?: boolean;
 }
 
-export type ComponentFile = "JSX" | "stylesheet" | "hook" | "test";
-
-export type Component = {
-  [K in ComponentFile]: { path: string; content: string };
-};
+export type File = { path: string; content: string };
