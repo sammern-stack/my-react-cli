@@ -4,12 +4,13 @@ import { Command } from "commander";
 
 import { DEFAULT_DIRS } from "./generate.constants.js";
 
-import { error } from "../../utils/console.js";
+import { error, warning } from "../../utils/console.js";
 import { buildPreActionChecks, generate } from "./utils/general.js";
 import { getComponentFiles } from "./utils/getComponentFiles.js";
 import { getHookFiles } from "./utils/getHookFiles.js";
 
 import type { Options, Type } from "./generate.types.js";
+import { registerPage } from "./utils/registerPage.js";
 
 export const registerGenerateCommand = (program: Command) => {
   program
@@ -68,6 +69,22 @@ export const registerGenerateCommand = (program: Command) => {
         );
         const pageFiles = await getComponentFiles(pageDir, name, options);
         generate(pageDir, name, pageFiles);
+
+        const srcDir = path.join(process.cwd(), "src");
+        const importPath =
+          "../" +
+          path
+            .relative(srcDir, path.join(pageDir, name))
+            .split(path.sep)
+            .join("/");
+
+        const status = registerPage(name, importPath);
+
+        if (status === "no-app")
+          warning("routes.tsx not found, skipped route.");
+        if (status === "no-routes")
+          warning("No <Routes> found in routes.tsx, skipped route.");
+        if (status === "exists") warning(`${name} is already in routes.tsx.`);
       }
     });
 };
