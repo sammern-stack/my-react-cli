@@ -1,9 +1,12 @@
+import path from "path";
+import fs from "fs";
 import { Command } from "commander";
 import { error } from "../../utils/console.js";
 import { buildPreActionChecks } from "./utils/general.js";
 import { runGenerateComponent } from "./utils/runGenerateComponent.js";
 import { runGenerateHook } from "./utils/runGenerateHook.js";
 import type { Options, Type } from "./generate.types.js";
+import { DEFAULT_DIRS } from "./generate.constants.js";
 
 export const registerGenerateCommand = (program: Command) => {
   program
@@ -25,7 +28,7 @@ export const registerGenerateCommand = (program: Command) => {
     )
     .option("--ts", "Use typescript")
     .option("--force", "skip safety checks and overwrite")
-    .action(async (type: Type, name: string, options: Options) => {
+    .action((type: Type, name: string, options: Options) => {
       const checks = buildPreActionChecks(type, options);
       for (const check of checks) {
         if (check.condition) {
@@ -35,11 +38,17 @@ export const registerGenerateCommand = (program: Command) => {
         }
       }
 
-      const rootDir = options.feature
-        ? `src/features/${options.feature}`
-        : `src`;
+      const root = options.feature ? `src/features/${options.feature}` : `src`;
+      const folder = `${options.dir ?? DEFAULT_DIRS[type]}/${name}`;
+      const dir = path.join(process.cwd(), `${root}/${folder}`);
 
-      if (type === "component") runGenerateComponent(rootDir, name, options);
-      if (type === "hook") runGenerateHook(rootDir, name, options);
+      if (fs.existsSync(dir) && !options.force) {
+        error(`Directory '${dir}' already exists\nUse --force to overwrite it`);
+        process.exitCode = 1;
+        return;
+      }
+
+      if (type === "component") runGenerateComponent(dir, name, options);
+      if (type === "hook") runGenerateHook(dir, name, options);
     });
 };

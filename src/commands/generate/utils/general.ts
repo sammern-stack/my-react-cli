@@ -1,15 +1,6 @@
-import path from "path";
-import fs from "fs";
-import type { Check, Options, Type } from "../generate.types.js";
 import { isReactProject } from "../../../utils/validators.js";
 import { STYLES, TYPES } from "../generate.constants.js";
-
-export const createDir = (pathToFolder: string) => {
-  const folder = path.join(process.cwd(), pathToFolder);
-  if (fs.existsSync(folder)) return;
-  fs.mkdirSync(folder, { recursive: true });
-  return folder;
-};
+import type { Check, Options, Type } from "../generate.types.js";
 
 export const buildPreActionChecks = (type: Type, options: Options): Check[] => [
   {

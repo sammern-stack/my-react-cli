@@ -1,13 +1,12 @@
 import fs from "fs";
 import chalk from "chalk";
 import { info, warning } from "../../../utils/console.js";
-import { createDir } from "./general.js";
 import { generateComponent } from "./generateComponent.js";
-import type { Options } from "../generate.types.js";
 import { VALID_COMPONENT_NAME } from "../generate.constants.js";
+import type { Options } from "../generate.types.js";
 
 export const runGenerateComponent = async (
-  rootDir: string,
+  dir: string,
   name: string,
   options: Options,
 ) => {
@@ -16,15 +15,10 @@ export const runGenerateComponent = async (
     process.exitCode = 1;
     return;
   }
-  const folder = createDir(`${rootDir}/${options.dir ?? "components"}/${name}`);
-  if (!folder) {
-    warning(`Folder ${name} already exists!`);
-    process.exitCode = 1;
-    return;
-  }
-  const component = await generateComponent(folder, name, options);
+  fs.mkdirSync(dir, { recursive: true });
+  const component = await generateComponent(dir, name, options);
   for (const file of Object.values(component)) {
     fs.writeFileSync(file.path, file.content);
   }
-  info(`${name} created at ${chalk.gray(folder)}`);
+  info(`${name} created at ${chalk.gray(dir)}`);
 };
