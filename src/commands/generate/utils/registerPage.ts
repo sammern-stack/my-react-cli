@@ -1,8 +1,8 @@
 import path from "path";
 import fs from "fs";
-import { Project, SyntaxKind } from "ts-morph";
-import { formatFile } from "../../../utils/formatFile.js";
+
 import { info, warning } from "../../../utils/console.js";
+import { finishProject, getJSX, startProject } from "../../../utils/project.js";
 
 export const registerPage = (name: string, importPath: string) => {
   const routesPath = path.join(process.cwd(), "src/app/routes.tsx");
@@ -10,8 +10,7 @@ export const registerPage = (name: string, importPath: string) => {
     return warning("routes.tsx not found, skipped route.");
   }
 
-  const project = new Project();
-  const file = project.addSourceFileAtPath(routesPath);
+  const file = startProject(routesPath);
 
   if (file.getVariableDeclaration(name)) {
     return warning(`${name} is already in routes.tsx.`);
@@ -36,11 +35,7 @@ export const registerPage = (name: string, importPath: string) => {
     `\nconst ${name}Page = lazy(() => import("${importPath}/${name}"));`,
   );
 
-  const routes = file
-    .getDescendantsOfKind(SyntaxKind.JsxElement)
-    .find(
-      (el) => el.getOpeningElement().getTagNameNode().getText() === "Routes",
-    );
+  const routes = getJSX(file, "Routes");
 
   if (!routes) {
     return warning("No <Routes> found in routes.tsx, skipped route.");
@@ -52,7 +47,6 @@ export const registerPage = (name: string, importPath: string) => {
     `\n<Route path="/${urlPath}" element={<${name}Page />} />`,
   );
 
-  file.saveSync();
-  formatFile(routesPath);
+  finishProject(file, routesPath);
   return info(`Page ${name} registered at routes.tsx`);
 };

@@ -1,4 +1,5 @@
 import { CUSTOM_TEMPLATES, TEMPLATES } from "../new.constants.js";
+
 import type { CustomTemplate, Template } from "../new.types.js";
 
 export const isInvalidTemplate = (template?: string) =>
