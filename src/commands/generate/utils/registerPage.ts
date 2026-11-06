@@ -2,15 +2,20 @@ import path from "path";
 import fs from "fs";
 import { Project, SyntaxKind } from "ts-morph";
 import { formatFile } from "../../../utils/formatFile.js";
+import { info, warning } from "../../../utils/console.js";
 
 export const registerPage = (name: string, importPath: string) => {
   const routesPath = path.join(process.cwd(), "src/app/routes.tsx");
-  if (!fs.existsSync(routesPath)) return "no-app";
+  if (!fs.existsSync(routesPath)) {
+    return warning("routes.tsx not found, skipped route.");
+  }
 
   const project = new Project();
   const file = project.addSourceFileAtPath(routesPath);
 
-  if (file.getVariableDeclaration(name)) return "exists";
+  if (file.getVariableDeclaration(name)) {
+    return warning(`${name} is already in routes.tsx.`);
+  }
 
   const reactImport = file.getImportDeclaration("react");
 
@@ -24,11 +29,11 @@ export const registerPage = (name: string, importPath: string) => {
 
   const imports = file.getImportDeclarations();
   const lastImport = imports[imports.length - 1];
-  const index = file.getStatements().indexOf(lastImport!) + 2;
+  const index = file.getStatements().indexOf(lastImport!) + 1;
 
   file.insertStatements(
     index,
-    `\nconst ${name}Page = lazy(() => import("${importPath}"));`,
+    `\nconst ${name}Page = lazy(() => import("${importPath}/${name}"));`,
   );
 
   const routes = file
@@ -37,7 +42,9 @@ export const registerPage = (name: string, importPath: string) => {
       (el) => el.getOpeningElement().getTagNameNode().getText() === "Routes",
     );
 
-  if (!routes) return "no-routes";
+  if (!routes) {
+    return warning("No <Routes> found in routes.tsx, skipped route.");
+  }
 
   const urlPath = name.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
   file.insertText(
@@ -47,5 +54,5 @@ export const registerPage = (name: string, importPath: string) => {
 
   file.saveSync();
   formatFile(routesPath);
-  return "done";
+  return info(`Page ${name} registered at routes.tsx`);
 };
