@@ -1,9 +1,9 @@
 import path from "path";
 import fs from "fs";
-import type { Options, Type } from "../commands/generate/generate.types.js";
+
 import { DEFAULT_DIRS } from "../commands/generate/generate.constants.js";
-import { getComponentFiles } from "../commands/generate/utils/getComponentFiles.js";
-import { getHookFiles } from "../commands/generate/utils/getHookFiles.js";
+
+import type { Options, Type } from "../commands/generate/generate.types.js";
 
 type Template = "component" | "hook" | "stylesheet" | "main" | "page";
 

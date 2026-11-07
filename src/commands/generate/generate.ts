@@ -1,20 +1,23 @@
 import fs from "fs";
-import { Command, Option } from "commander";
+import { Argument, Command, Option } from "commander";
 
-import { STYLES } from "./generate.constants.js";
+import { PATTERNS, STYLES, TYPES } from "./generate.constants.js";
 
+import { isReactProject } from "../../utils/validators.js";
 import { error } from "../../utils/console.js";
 import { getDirPath } from "../../utils/general.js";
 import { registerPage } from "./utils/registerPage.js";
-import { buildPreActionChecks, generate } from "./utils/general.js";
+import { generate } from "./utils/general.js";
 import { getComponentFiles } from "./utils/getComponentFiles.js";
 import { getHookFiles } from "./utils/getHookFiles.js";
 
-import type { Options, Type } from "./generate.types.js";
+import type { Check, Options, Type } from "./generate.types.js";
 
 export const registerGenerateCommand = (program: Command) => {
   program
-    .command("generate <type> <name>")
+    .command("generate")
+    .addArgument(new Argument("<type>").choices(TYPES))
+    .argument("<name>")
     .alias("g")
     .description("generate the given <type> content")
     .option("-d, --dir <dir>", "target folder for the <type> folder")
@@ -31,7 +34,18 @@ export const registerGenerateCommand = (program: Command) => {
     .option("--ts", "Use typescript")
     .option("--force", "skip safety checks and overwrite")
     .action(async (type: Type, name: string, options: Options) => {
-      const checks = buildPreActionChecks(type, name, options);
+      const checks: Check[] = [
+        {
+          condition: !isReactProject() && !options.force,
+          message:
+            "This is not a React project\ncreate one with 'ct new <name>' or use --force",
+        },
+        {
+          condition: !PATTERNS[type].test(name),
+          message: `"${name}" is not a valid ${type} name`,
+        },
+      ];
+
       for (const { condition, message } of checks) {
         if (condition) {
           error(message);
@@ -41,7 +55,6 @@ export const registerGenerateCommand = (program: Command) => {
       }
 
       const dir = getDirPath(type, name, options);
-
       if (fs.existsSync(dir) && !options.force) {
         error(`Directory '${dir}' already exists\nUse --force to overwrite it`);
         process.exitCode = 1;
@@ -62,10 +75,6 @@ export const registerGenerateCommand = (program: Command) => {
           generate(dir, name, pageFiles);
           registerPage(name, `../pages/${name}`);
           break;
-        default:
-          error(`Invalid type: ${type}`);
-          process.exitCode = 1;
-          return;
       }
     });
 };
