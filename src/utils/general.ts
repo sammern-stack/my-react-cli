@@ -27,16 +27,3 @@ export const getDirPath = (type: Type, name: string, options: Options) => {
 
   return path.join(rootDir, destination);
 };
-
-export const getFiles = async (type: Type, name: string, options: Options) => {
-  const dir = getDirPath(type, name, options);
-  switch (type) {
-    case "component":
-    case "page":
-      return await getComponentFiles(dir, name, options);
-    case "hook":
-      return await getHookFiles(dir, name, options);
-    default:
-      return;
-  }
-};
