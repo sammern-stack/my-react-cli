@@ -1,32 +1,32 @@
 import fs from "fs";
-import { Command } from "commander";
+import { Command, Option } from "commander";
+
+import { STYLES } from "./generate.constants.js";
 
 import { error } from "../../utils/console.js";
+import { getDirPath } from "../../utils/general.js";
 import { registerPage } from "./utils/registerPage.js";
 import { buildPreActionChecks, generate } from "./utils/general.js";
 import { getComponentFiles } from "./utils/getComponentFiles.js";
 import { getHookFiles } from "./utils/getHookFiles.js";
 
 import type { Options, Type } from "./generate.types.js";
-import { getDirPath } from "../../utils/general.js";
 
 export const registerGenerateCommand = (program: Command) => {
   program
     .command("generate <type> <name>")
     .alias("g")
     .description("generate the given <type> content")
-    .option("-d, --dir <dir>", "target folder for the <type> folder", (value) =>
-      value.replace(/=/, ""),
-    )
+    .option("-d, --dir <dir>", "target folder for the <type> folder")
     .option(
       "-f, --feature <feature>",
       "generate the given <type> inside a feature",
-      (value) => value.replace(/=/, ""),
     )
-    .option(
-      "-s, --style <style>",
-      "use the specified stylesheet style",
-      (value) => value.replace(/=/, ""),
+    .addOption(
+      new Option(
+        "-s, --style <style>",
+        "use the specified stylesheet style",
+      ).choices(STYLES),
     )
     .option("--ts", "Use typescript")
     .option("--force", "skip safety checks and overwrite")

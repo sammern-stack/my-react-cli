@@ -30,10 +30,6 @@ export const buildPreActionChecks = (
       "This is not a React project\ncreate one with 'ct new <name>' or use --force",
   },
   {
-    condition: options.style && !STYLES.includes(options.style),
-    message: `Invalid style: ${options.style}`,
-  },
-  {
     condition:
       (type === "component" || type === "page") &&
       !VALID_COMPONENT_NAME.test(name),
