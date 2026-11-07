@@ -9,7 +9,7 @@ import { generate } from "./utils/general.js";
 import { getComponentFiles } from "./utils/getComponentFiles.js";
 import { getHookFiles } from "./utils/getHookFiles.js";
 
-import type { Options, Type } from "./generate.types.js";
+import type { File, Options, Type } from "./generate.types.js";
 
 export const registerGenerateCommand = (program: Command) => {
   program
@@ -46,20 +46,18 @@ export const registerGenerateCommand = (program: Command) => {
 
       const dir = getDirPath(type, name, options);
 
+      let files: File[];
       switch (type) {
         case "component":
-          const componentFiles = await getComponentFiles(dir, name, options);
-          generate(dir, name, componentFiles);
+        case "page":
+          files = await getComponentFiles(dir, name, options);
           break;
         case "hook":
-          const hookFiles = await getHookFiles(dir, name, options);
-          generate(dir, name, hookFiles);
-          break;
-        case "page":
-          const pageFiles = await getComponentFiles(dir, name, options);
-          generate(dir, name, pageFiles);
-          registerPage(name, `../pages/${name}`);
+          files = await getHookFiles(dir, name, options);
           break;
       }
+      generate(dir, name, files);
+
+      if (type === "page") registerPage(name, `../pages/${name}`);
     });
 };
