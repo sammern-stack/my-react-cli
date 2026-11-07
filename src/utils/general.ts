@@ -1,9 +1,15 @@
 import path from "path";
 import fs from "fs";
 
+import { error } from "./console.js";
+
 import { DEFAULT_DIRS } from "../commands/generate/generate.constants.js";
 
-import type { Options, Type } from "../commands/generate/generate.types.js";
+import type {
+  Check,
+  Options,
+  Type,
+} from "../commands/generate/generate.types.js";
 
 type Template = "component" | "hook" | "stylesheet" | "main" | "page";
 
@@ -25,5 +31,19 @@ export const getDirPath = (type: Type, name: string, options: Options) => {
       ? `${options.dir ?? DEFAULT_DIRS[type]}/${name}`
       : `${DEFAULT_DIRS["page"]}/${name}`;
 
+  const dir = path.join(rootDir, destination);
+
+  if (fs.existsSync(dir) && !options.force)
+    exit(`Directory '${dir}' already exists\nUse --force to overwrite it`);
+
   return path.join(rootDir, destination);
+};
+
+export const exit = (message: string) => {
+  error(message);
+  process.exit(1);
+};
+
+export const runChecks = (checks: Check[]) => {
+  for (const { condition, message } of checks) if (condition) exit(message);
 };

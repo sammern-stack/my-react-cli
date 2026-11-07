@@ -1,17 +1,15 @@
-import fs from "fs";
 import { Argument, Command, Option } from "commander";
 
 import { PATTERNS, STYLES, TYPES } from "./generate.constants.js";
 
 import { isReactProject } from "../../utils/validators.js";
-import { error } from "../../utils/console.js";
-import { getDirPath } from "../../utils/general.js";
+import { getDirPath, runChecks } from "../../utils/general.js";
 import { registerPage } from "./utils/registerPage.js";
 import { generate } from "./utils/general.js";
 import { getComponentFiles } from "./utils/getComponentFiles.js";
 import { getHookFiles } from "./utils/getHookFiles.js";
 
-import type { Check, Options, Type } from "./generate.types.js";
+import type { Options, Type } from "./generate.types.js";
 
 export const registerGenerateCommand = (program: Command) => {
   program
@@ -34,7 +32,7 @@ export const registerGenerateCommand = (program: Command) => {
     .option("--ts", "Use typescript")
     .option("--force", "skip safety checks and overwrite")
     .action(async (type: Type, name: string, options: Options) => {
-      const checks: Check[] = [
+      runChecks([
         {
           condition: !isReactProject() && !options.force,
           message:
@@ -44,22 +42,9 @@ export const registerGenerateCommand = (program: Command) => {
           condition: !PATTERNS[type].test(name),
           message: `"${name}" is not a valid ${type} name`,
         },
-      ];
-
-      for (const { condition, message } of checks) {
-        if (condition) {
-          error(message);
-          process.exitCode = 1;
-          return;
-        }
-      }
+      ]);
 
       const dir = getDirPath(type, name, options);
-      if (fs.existsSync(dir) && !options.force) {
-        error(`Directory '${dir}' already exists\nUse --force to overwrite it`);
-        process.exitCode = 1;
-        return;
-      }
 
       switch (type) {
         case "component":
