@@ -1,8 +1,5 @@
-import path from "path";
 import fs from "fs";
 import { Command } from "commander";
-
-import { DEFAULT_DIRS } from "./generate.constants.js";
 
 import { error } from "../../utils/console.js";
 import { registerPage } from "./utils/registerPage.js";
@@ -11,6 +8,7 @@ import { getComponentFiles } from "./utils/getComponentFiles.js";
 import { getHookFiles } from "./utils/getHookFiles.js";
 
 import type { Options, Type } from "./generate.types.js";
+import { getDirPath } from "../../utils/general.js";
 
 export const registerGenerateCommand = (program: Command) => {
   program
@@ -42,9 +40,7 @@ export const registerGenerateCommand = (program: Command) => {
         }
       }
 
-      const root = options.feature ? `src/features/${options.feature}` : `src`;
-      const folder = `${options.dir ?? DEFAULT_DIRS[type]}/${name}`;
-      const dir = path.join(process.cwd(), `${root}/${folder}`);
+      const dir = getDirPath(type, name, options);
 
       if (fs.existsSync(dir) && !options.force) {
         error(`Directory '${dir}' already exists\nUse --force to overwrite it`);
@@ -52,24 +48,24 @@ export const registerGenerateCommand = (program: Command) => {
         return;
       }
 
-      if (type === "component") {
-        const componentFiles = await getComponentFiles(dir, name, options);
-        generate(dir, name, componentFiles);
-      }
-
-      if (type === "hook") {
-        const hookFiles = await getHookFiles(dir, name, options);
-        generate(dir, name, hookFiles);
-      }
-
-      if (type === "page") {
-        const pageDir = path.join(
-          process.cwd(),
-          `src/${DEFAULT_DIRS.page}/${name}`,
-        );
-        const pageFiles = await getComponentFiles(pageDir, name, options);
-        generate(pageDir, name, pageFiles);
-        registerPage(name, `../pages/${name}`);
+      switch (type) {
+        case "component":
+          const componentFiles = await getComponentFiles(dir, name, options);
+          generate(dir, name, componentFiles);
+          break;
+        case "hook":
+          const hookFiles = await getHookFiles(dir, name, options);
+          generate(dir, name, hookFiles);
+          break;
+        case "page":
+          const pageFiles = await getComponentFiles(dir, name, options);
+          generate(dir, name, pageFiles);
+          registerPage(name, `../pages/${name}`);
+          break;
+        default:
+          error(`Invalid type: ${type}`);
+          process.exitCode = 1;
+          return;
       }
     });
 };
