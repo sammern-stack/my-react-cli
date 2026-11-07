@@ -2,18 +2,18 @@ import chalk from "chalk";
 import ora from "ora";
 
 export const applySpinner = (
-  options: { name: string; folder: string },
+  startMsg: string,
+  finishMsg: string,
+  errorMsg: string,
   callback: () => void,
 ) => {
-  const { name, folder } = options;
-  const spinner = ora(`Creating ${name}...`).start();
-
+  const spinner = ora(startMsg).start();
   try {
     callback();
-    spinner.succeed(`Created ${chalk.cyan(name)} in ${chalk.gray(folder)}`);
+    spinner.succeed(finishMsg);
   } catch (error) {
-    spinner.fail(chalk.red(`Could not create ${name}`));
+    spinner.fail(chalk.red(errorMsg));
     console.error(error);
-    process.exitCode = 1;
+    process.exit(1);
   }
 };

@@ -3,9 +3,9 @@ import { Argument, Command, Option } from "commander";
 import { PATTERNS, STYLES, TYPES } from "./generate.constants.js";
 
 import { isReactProject } from "../../utils/validators.js";
-import { getDirPath, runChecks } from "../../utils/general.js";
+import { runChecks } from "../../utils/general.js";
 import { registerPage } from "./utils/registerPage.js";
-import { generate } from "./utils/general.js";
+import { generate, getDirPath } from "./utils/general.js";
 import { getComponentFiles } from "./utils/getComponentFiles.js";
 import { getHookFiles } from "./utils/getHookFiles.js";
 
