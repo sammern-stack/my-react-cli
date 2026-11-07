@@ -8,12 +8,13 @@ import {
 
 import { formatFile } from "./formatFile.js";
 
-export const startProject = (filePath: string) => {
+export const runProject = (
+  filePath: string,
+  callback: (file: SourceFile) => void,
+) => {
   const project = new Project();
-  return project.addSourceFileAtPath(filePath);
-};
-
-export const finishProject = (file: SourceFile, filePath: string) => {
+  const file = project.addSourceFileAtPath(filePath);
+  callback(file);
   file.saveSync();
   formatFile(filePath);
 };
