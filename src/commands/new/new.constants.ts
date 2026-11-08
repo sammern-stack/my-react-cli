@@ -8,6 +8,4 @@ export const TEMPLATES = [
 export const CUSTOM_TEMPLATES = [
   "custom-js",
   "custom-ts",
-  "feature-ts",
-  "feature",
 ] as const;

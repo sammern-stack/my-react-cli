@@ -1,8 +1,7 @@
 import fs from "fs";
 import { warning, error, info } from "../../../utils/console.js";
-import { TEMPLATES } from "../new.constants.js";
-import type { Template } from "../new.types.js";
 import { runCommand } from "./runCommand.js";
+import { isViteTemplate } from "./templateValidation.js";
 
 // Utility
 const retryInstallDependencies = (name: string, target: string) => {
@@ -26,7 +25,7 @@ export const runCreateVite = (
   template?: string,
 ) => {
   const createViteCommand = template
-    ? TEMPLATES.includes(template as Template)
+    ? isViteTemplate(template)
       ? `npm create vite@latest ${name} -- --template ${template} --no-interactive`
       : `npm create vite@latest ${name} -- --template ${template.endsWith("-ts") ? "react-ts" : "react"} --no-interactive`
     : `npm create vite@latest ${name}`;
