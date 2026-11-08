@@ -1,6 +1,6 @@
 import { CUSTOM_TEMPLATES, TEMPLATES } from "../new.constants.js";
 
-import type { CustomTemplate, Template } from "../new.types.js";
+import type { CustomTemplate, Template } from "../types/new.types.js";
 
 export const isViteTemplate = (template: string): template is Template =>
   TEMPLATES.some((item) => item === template);

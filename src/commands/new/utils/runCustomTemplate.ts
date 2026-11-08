@@ -1,6 +1,6 @@
 import path from "path";
 import fs from "fs";
-import type { Options } from "../new.types.js";
+import type { Options } from "../types/new.types.js";
 
 // Utility
 const removeDefaultFiles = (target: string, files: string[]) => {
