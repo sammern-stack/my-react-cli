@@ -3,12 +3,9 @@ import { Argument, Command, Option } from "commander";
 import { PATTERNS, STYLES, TYPES } from "./generate.constants.js";
 
 import { isReactProject } from "../../utils/validators.js";
-import {
-  applyTemplate,
-  projectStyleExt,
-  projectUsesTs,
-  runChecks,
-} from "../../utils/general.js";
+import { applyTemplate } from "../../utils/templates.js";
+import { runChecks } from "../../utils/checks.js";
+import { projectStyleExt, projectUsesTs } from "./utils/generationOptions.js";
 import { registerPage } from "./utils/registerPage.js";
 import { writeGeneratedFiles } from "./utils/writeGeneratedFiles.js";
 import { getComponentFiles } from "./utils/getComponentFiles.js";

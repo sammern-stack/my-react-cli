@@ -1,6 +1,6 @@
 import path from "path";
 
-import { getTemplate } from "../../../utils/general.js";
+import { getTemplate } from "../../../utils/templates.js";
 
 import type { File } from "../types/generate.types.js";
 

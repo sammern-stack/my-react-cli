@@ -3,7 +3,7 @@ import fs from "fs";
 
 import { DEFAULT_DIRS } from "../generate.constants.js";
 
-import { exit } from "../../../utils/general.js";
+import { exit } from "../../../utils/checks.js";
 
 import type { Type, Options, DefaultDirs } from "../types/generate.types.js";
 

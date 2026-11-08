@@ -1,7 +1,5 @@
 import type { STYLES, TYPES } from "../generate.constants.js";
 
-export type Check = { condition: boolean | undefined; message: string };
-
 export type Type = (typeof TYPES)[number];
 export type Style = (typeof STYLES)[number];
 
