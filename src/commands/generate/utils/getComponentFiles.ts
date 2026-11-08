@@ -4,12 +4,12 @@ import { getTemplate } from "../../../utils/general.js";
 
 import type { File } from "../generate.types.js";
 
-export const getComponentFiles = async (
+export const getComponentFiles = (
   folder: string,
   name: string,
   useTs: boolean,
   style: string,
-): Promise<File[]> => {
+): File[] => {
   const langExt = useTs ? "ts" : "js";
   const isPage = folder.includes("page");
 

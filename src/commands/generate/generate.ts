@@ -57,10 +57,10 @@ export const registerGenerateCommand = (program: Command) => {
       switch (type) {
         case "component":
         case "page":
-          files = await getComponentFiles(dir, name, useTs, style);
+          files = getComponentFiles(dir, name, useTs, style);
           break;
         case "hook":
-          files = await getHookFiles(dir, name, useTs);
+          files = getHookFiles(dir, name, useTs);
           break;
         case "feature":
           applyTemplate(useTs ? "feature-ts" : "feature", dir);
