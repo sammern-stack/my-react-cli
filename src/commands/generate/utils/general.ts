@@ -17,12 +17,24 @@ export const generate = (dir: string, name: string, files: File[]) => {
 
 export const getDirPath = (type: Type, name: string, options: Options) => {
   const srcDir = path.join(process.cwd(), "src");
+  const featureDir =
+    options.feature !== undefined
+      ? path.join(srcDir, "features", options.feature)
+      : undefined;
+
+  if (
+    featureDir !== undefined &&
+    (!options.feature ||
+      !fs.statSync(featureDir, { throwIfNoEntry: false })?.isDirectory())
+  ) {
+    exit(
+      `Feature '${options.feature}' does not exist\nCreate it first with 'ct generate feature <Name>'`,
+    );
+  }
 
   if (type === "feature") return path.join(srcDir, `features/${name}`);
 
-  const rootDir = options.feature
-    ? path.join(srcDir, `/features/${options.feature}`)
-    : srcDir;
+  const rootDir = featureDir ?? srcDir;
 
   const destination =
     type !== "page"

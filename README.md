@@ -1,6 +1,7 @@
 # React CLI
 
-A command-line tool to scaffold React projects, components, hooks, and pages.
+A command-line tool to scaffold React projects, components, hooks, pages, and
+features.
 
 ## Table of contents
 
@@ -79,20 +80,28 @@ ct generate <type> <name> [options]
 | `component` | PascalCase (for example, `Button`) | A component, CSS/SCSS module, hook, and test file in a component folder |
 | `hook` | `use` followed by PascalCase (for example, `useAuth`) | A hook file in its own folder |
 | `page` | PascalCase (for example, `Settings`) | The same files as a component, in `src/pages/`, plus a lazy-loaded route (see [Pages and routes](#pages-and-routes)) |
+| `feature` | PascalCase (for example, `Auth`) | A feature folder with an `index.js` or `index.ts` entry point |
 
 ### Options
 
 | Option | Description |
 | --- | --- |
-| `-d, --dir <dir>` | Choose the folder for the generated type. Defaults to `components` for components and `hooks` for hooks. Not used for pages. |
-| `-f, --feature <feature>` | Generate under `src/features/<feature>/` instead of directly under `src/`. Not used for pages. |
-| `-s, --style <style>` | Component stylesheet format: `css` or `scss`. Overrides `ct.config.json`; if neither is set, the CLI prompts. |
+| `-d, --dir <dir>` | Choose the folder for components or hooks. Defaults to `components` or `hooks`, respectively. Not used for pages or features. |
+| `-f, --feature <feature>` | Generate a component, hook, or page under an existing `src/features/<feature>/` instead of directly under `src/`. Does not change the destination when generating a feature. See the page routing limitation below. |
+| `-s, --style <style>` | Component and page stylesheet format: `css` or `scss`. Overrides `ct.config.json`; if neither is set, the CLI prompts, even for hooks and features that do not generate stylesheets. |
 | `--ts` | Force TypeScript output. Otherwise, uses `ct.config.json` when set, then detects TypeScript from `tsconfig.json`. |
-| `--force` | Skip the React project check and overwrite the output folder if it already exists. |
+| `--force` | Skip the React project check and allow an existing component, hook, or page output folder to be used. Generated files with matching names are overwritten. |
 
-If the destination folder already exists, the command stops unless you pass
-`--force`. The CLI recognizes a React project by the `react` dependency in its
-`package.json`.
+For components, hooks, and pages, the command stops if the destination folder
+already exists unless you pass `--force`. Feature generation does not perform
+this check: it copies the template into an existing feature folder and
+overwrites its matching index file, even without `--force`. Other files are
+left in place. The CLI recognizes a React project by a `react` dependency or
+dev dependency in its `package.json`.
+
+The `--feature` flag requires an existing feature directory, even with
+`--force`. Create it first with `ct generate feature <Name>`. The check also
+applies if the flag is passed when generating a feature.
 
 ### Examples
 
@@ -100,14 +109,17 @@ If the destination folder already exists, the command stops unless you pass
 # Create a component; choose the stylesheet format when prompted
 ct g component Button
 
-# Create a TypeScript component with a SCSS module
-ct g component LoginForm --feature auth --style scss --ts
+# Create a feature with a TypeScript entry point
+ct g feature Auth --ts
+
+# Create a TypeScript component with a SCSS module in the feature
+ct g component LoginForm --feature Auth --style scss --ts
 
 # Use a custom folder name for a component
 ct g component Button --dir ui
 
 # Create a hook in a feature folder
-ct g hook useSession -f auth
+ct g hook useSession -f Auth
 
 # Create a page and register its route
 ct g page Settings
@@ -124,11 +136,18 @@ places those folders under `src/features/<feature>/`.
 | Command | Output |
 | --- | --- |
 | `ct g component Button` | `src/components/Button/` |
-| `ct g component Button -f auth` | `src/features/auth/components/Button/` |
+| `ct g component Button -f Auth` | `src/features/Auth/components/Button/` |
 | `ct g component Button -d ui` | `src/ui/Button/` |
 | `ct g hook useAuth` | `src/hooks/useAuth/useAuth.js` (or `.ts` when TypeScript is enabled) |
-| `ct g hook useAuth -f auth` | `src/features/auth/hooks/useAuth/useAuth.js` (or `.ts` when TypeScript is enabled) |
+| `ct g hook useAuth -f Auth` | `src/features/Auth/hooks/useAuth/useAuth.js` (or `.ts` when TypeScript is enabled) |
+| `ct g feature Auth` | `src/features/Auth/index.js` (or `index.ts` when TypeScript is enabled) |
 | `ct g page Settings` | `src/pages/Settings/` |
+| `ct g page Settings -f Auth` | `src/features/Auth/pages/Settings/` (see routing limitation below) |
+
+The feature entry point contains placeholder sections for components and hooks;
+the TypeScript version also has a types section. Add exports as you build the
+feature. Use the same spelling and capitalization with `--feature`, since
+some filesystems treat paths as case-sensitive.
 
 ### Pages and routes
 
@@ -149,6 +168,10 @@ For example, `ct g page UserSettings` adds the `/user-settings` route. If no
 routes file is found, the page files are still created and the CLI warns that
 route registration was skipped. If `<Name>Page` is already declared in the
 routes file, it is not added again.
+
+When `--feature` is used with a page, the page is created under the feature,
+but the generated route still imports from `../pages/`. Update that import
+manually to point to the generated page.
 
 ### Formatting with Prettier
 
