@@ -8,7 +8,7 @@ import {
 } from "./new.constants.js";
 import { runCustomTemplate } from "./utils/runCustomTemplate.js";
 import { runCreateVite } from "./utils/runCreateVite.js";
-import { isCustomTemplate, isInvalidTemplate } from "./utils/general.js";
+import { isCustomTemplate, isInvalidTemplate } from "./utils/templateValidation.js";
 import type { Command } from "commander";
 import type { Options } from "./new.types.js";
 
