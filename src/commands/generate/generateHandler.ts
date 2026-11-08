@@ -2,6 +2,7 @@ import { PATTERNS } from "./generate.constants.js";
 import { isReactProject } from "../../utils/validators.js";
 import { applyTemplate } from "../../utils/templates.js";
 import { runChecks } from "../../utils/checks.js";
+import { loadConfig } from "../../utils/loadConfig.js";
 import { projectStyleExt, projectUsesTs } from "./utils/generationOptions.js";
 import { registerPage } from "./utils/registerPage.js";
 import { writeGeneratedFiles } from "./utils/writeGeneratedFiles.js";
@@ -29,14 +30,20 @@ export const generateHandler = async (
   ]);
 
   const dir = resolveDestination(type, name, options);
-  const useTs = projectUsesTs(options.ts);
-  const style = await projectStyleExt(options.style);
+  const config = loadConfig() ?? {};
+  const useTs = projectUsesTs(options.ts, config);
 
   let files: File[] = [];
   switch (type) {
     case "component":
     case "page":
-      files = getComponentFiles(dir, name, useTs, style, type);
+      files = getComponentFiles(
+        dir,
+        name,
+        useTs,
+        await projectStyleExt(options.style, config),
+        type,
+      );
       break;
     case "hook":
       files = getHookFiles(dir, name, useTs);

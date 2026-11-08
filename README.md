@@ -88,7 +88,7 @@ ct generate <type> <name> [options]
 | --- | --- |
 | `-d, --dir <dir>` | Choose the folder for components or hooks. Defaults to `components` or `hooks`, respectively. Not used for pages or features. |
 | `-f, --feature <feature>` | Generate a component, hook, or page under an existing `src/features/<feature>/` instead of directly under `src/`. Does not change the destination when generating a feature. See the page routing limitation below. |
-| `-s, --style <style>` | Component and page stylesheet format: `css` or `scss`. Overrides `ct.config.json`; if neither is set, the CLI prompts, even for hooks and features that do not generate stylesheets. |
+| `-s, --style <style>` | Component and page stylesheet format: `css` or `scss`. Overrides `ct.config.json`; if neither is set, the CLI prompts when generating a component or page. |
 | `--ts` | Force TypeScript output. Otherwise, uses `ct.config.json` when set, then detects TypeScript from `tsconfig.json`. |
 | `--force` | Skip the React project check and allow an existing component, hook, or page output folder to be used. Generated files with matching names are overwritten. |
 

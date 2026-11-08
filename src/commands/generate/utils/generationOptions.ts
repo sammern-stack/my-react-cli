@@ -1,16 +1,16 @@
 import prompts from "prompts";
 
-import { loadConfig } from "../../../utils/loadConfig.js";
 import { isTypescriptUsed } from "../../../utils/validators.js";
+import type { Config } from "../../../types/config.types.js";
 
-export const projectUsesTs = (tsOption: boolean | undefined) => {
-  const config = loadConfig() ?? {};
+export const projectUsesTs = (tsOption: boolean | undefined, config: Config) => {
   return tsOption ?? config.typescript ?? isTypescriptUsed();
 };
 
-export const projectStyleExt = async (styleOption: string | undefined) => {
-  const config = loadConfig() ?? {};
-
+export const projectStyleExt = async (
+  styleOption: string | undefined,
+  config: Config,
+) => {
   const askForStyle = async (): Promise<string> => {
     const answer = await prompts({
       type: "select",
