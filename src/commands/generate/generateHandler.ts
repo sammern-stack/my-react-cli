@@ -1,7 +1,6 @@
 import { PATTERNS } from "./generate.constants.js";
 import { isReactProject } from "../../utils/validators.js";
 import { applyTemplate } from "../../utils/templates.js";
-import { runChecks } from "../../utils/checks.js";
 import { loadConfig } from "../../utils/loadConfig.js";
 import { projectStyleExt, projectUsesTs } from "./utils/generationOptions.js";
 import { registerPage } from "./utils/registerPage.js";
@@ -11,23 +10,23 @@ import { getHookFiles } from "./utils/getHookFiles.js";
 import { resolveDestination } from "./utils/resolveDestination.js";
 
 import type { File, Options, Type } from "./types/generate.types.js";
+import { error, info } from "../../utils/console.js";
 
 export const generateHandler = async (
   type: Type,
   name: string,
   options: Options,
 ) => {
-  runChecks([
-    {
-      condition: !isReactProject() && !options.force,
-      message:
-        "This is not a React project\ncreate one with 'ct new <name>' or use --force",
-    },
-    {
-      condition: !PATTERNS[type].test(name),
-      message: `"${name}" is not a valid ${type} name`,
-    },
-  ]);
+  if (!isReactProject() && !options.force) {
+    error("This isn't a React project");
+    info("Create one with 'ct new <name>' or use --force");
+    process.exit(1);
+  }
+
+  if (!PATTERNS[type].test(name)) {
+    error(`"${name}" is not a valid ${type} name`);
+    process.exit(1);
+  }
 
   const dir = resolveDestination(type, name, options);
   const config = loadConfig() ?? {};

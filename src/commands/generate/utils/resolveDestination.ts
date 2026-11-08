@@ -3,9 +3,8 @@ import fs from "fs";
 
 import { DEFAULT_DIRS } from "../generate.constants.js";
 
-import { exit } from "../../../utils/checks.js";
-
 import type { Type, Options, DefaultDirs } from "../types/generate.types.js";
+import { error, info } from "../../../utils/console.js";
 
 export const resolveDestination = (
   type: Type,
@@ -23,9 +22,9 @@ export const resolveDestination = (
     (!options.feature ||
       !fs.statSync(featureDir, { throwIfNoEntry: false })?.isDirectory())
   ) {
-    exit(
-      `Feature '${options.feature}' does not exist\nCreate it first with 'ct generate feature <Name>'`,
-    );
+    error(`Feature '${options.feature}' does not exist`);
+    info("Create it first with 'ct generate feature <Name>'");
+    process.exit(1);
   }
 
   if (type === "feature") return path.join(srcDir, `features/${name}`);
@@ -39,8 +38,11 @@ export const resolveDestination = (
 
   const dir = path.join(rootDir, destination);
 
-  if (fs.existsSync(dir) && !options.force)
-    exit(`Directory '${dir}' already exists\nUse --force to overwrite it`);
+  if (fs.existsSync(dir) && !options.force) {
+    error(`Directory '${dir}' already exists`);
+    info("Use --force to overwrite it");
+    process.exit(1);
+  }
 
   return path.join(rootDir, destination);
 };
