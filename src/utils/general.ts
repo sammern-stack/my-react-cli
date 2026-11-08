@@ -3,6 +3,10 @@ import fs from "fs";
 import { error } from "./console.js";
 
 import type { Check } from "../commands/generate/generate.types.js";
+import type {
+  CustomTemplate,
+  Template as NewTemplate,
+} from "../commands/new/new.types.js";
 
 type Template = "component" | "hook" | "stylesheet" | "main" | "page";
 
@@ -11,6 +15,9 @@ export const getTemplate = (template: Template) =>
     new URL(`../../templates/${template}.tpl`, import.meta.url),
     "utf-8",
   );
+
+export const getTemplateUrl = (template: CustomTemplate | NewTemplate) =>
+  new URL(`../../templates/${template}`, import.meta.url);
 
 export const exit = (message: string) => {
   error(message);

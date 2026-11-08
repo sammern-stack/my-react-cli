@@ -1,9 +1,11 @@
+import fs from "fs";
 import { Argument, Command, Option } from "commander";
 
 import { PATTERNS, STYLES, TYPES } from "./generate.constants.js";
 
-import { isReactProject } from "../../utils/validators.js";
-import { runChecks } from "../../utils/general.js";
+import { isReactProject, isTypescriptUsed } from "../../utils/validators.js";
+import { getTemplateUrl, runChecks } from "../../utils/general.js";
+import { loadConfig } from "../../utils/loadConfig.js";
 import { registerPage } from "./utils/registerPage.js";
 import { generate, getDirPath } from "./utils/general.js";
 import { getComponentFiles } from "./utils/getComponentFiles.js";
@@ -46,7 +48,7 @@ export const registerGenerateCommand = (program: Command) => {
 
       const dir = getDirPath(type, name, options);
 
-      let files: File[];
+      let files: File[] = [];
       switch (type) {
         case "component":
         case "page":
@@ -54,6 +56,15 @@ export const registerGenerateCommand = (program: Command) => {
           break;
         case "hook":
           files = await getHookFiles(dir, name, options);
+          break;
+        case "feature":
+          const config = loadConfig() ?? {};
+          const useTs = options.ts ?? config.typescript ?? isTypescriptUsed();
+          const variant = useTs ? "feature-ts" : "feature";
+          fs.cpSync(getTemplateUrl(variant), dir, {
+            recursive: true,
+            force: true,
+          });
           break;
       }
       generate(dir, name, files);

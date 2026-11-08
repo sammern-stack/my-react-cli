@@ -7,7 +7,7 @@ import { info } from "../../../utils/console.js";
 import { DEFAULT_DIRS } from "../generate.constants.js";
 import { exit } from "../../../utils/general.js";
 
-import type { File, Options, Type } from "../generate.types.js";
+import type { DefaultDirs, File, Options, Type } from "../generate.types.js";
 
 export const generate = (dir: string, name: string, files: File[]) => {
   fs.mkdirSync(dir, { recursive: true });
@@ -18,13 +18,15 @@ export const generate = (dir: string, name: string, files: File[]) => {
 export const getDirPath = (type: Type, name: string, options: Options) => {
   const srcDir = path.join(process.cwd(), "src");
 
+  if (type === "feature") return path.join(srcDir, `features/${name}`);
+
   const rootDir = options.feature
     ? path.join(srcDir, `/features/${options.feature}`)
     : srcDir;
 
   const destination =
     type !== "page"
-      ? `${options.dir ?? DEFAULT_DIRS[type]}/${name}`
+      ? `${options.dir ?? DEFAULT_DIRS[type as DefaultDirs]}/${name}`
       : `${DEFAULT_DIRS["page"]}/${name}`;
 
   const dir = path.join(rootDir, destination);
