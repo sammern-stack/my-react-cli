@@ -3,8 +3,7 @@ import { warning, error, info } from "../../../utils/console.js";
 import { runCommand } from "./runCommand.js";
 import { isViteTemplate } from "./templateValidation.js";
 
-// Utility
-const retryInstallDependencies = (name: string, target: string) => {
+const retryInstallDependencies = (name: string, target: string): boolean => {
   warning(
     "Install failed (dependency conflict). Retrying with --legacy-peer-deps...",
   );
@@ -15,30 +14,38 @@ const retryInstallDependencies = (name: string, target: string) => {
     error("Install failed again. Finish it manually:");
     info(`cd ${name}\nnpm install --legacy-peer-deps`);
     process.exitCode = 1;
-    return;
+    return false;
   }
+
+  return true;
+};
+
+const getCreateViteCommand = (name: string, template?: string): string => {
+  if (!template) return `npm create vite@latest ${name}`;
+
+  const viteTemplate = isViteTemplate(template)
+    ? template
+    : template.endsWith("-ts")
+      ? "react-ts"
+      : "react";
+
+  return `npm create vite@latest ${name} -- --template ${viteTemplate} --no-interactive`;
 };
 
 export const runCreateVite = (
   name: string,
   target: string,
   template?: string,
-) => {
-  const createViteCommand = template
-    ? isViteTemplate(template)
-      ? `npm create vite@latest ${name} -- --template ${template} --no-interactive`
-      : `npm create vite@latest ${name} -- --template ${template.endsWith("-ts") ? "react-ts" : "react"} --no-interactive`
-    : `npm create vite@latest ${name}`;
+): boolean => {
+  const result = runCommand(getCreateViteCommand(name, template));
 
-  const result = runCommand(createViteCommand);
-
-  const vitePassed = result.status === 0;
-
-  if (!vitePassed && !fs.existsSync(target)) {
+  if (!fs.existsSync(target)) {
     error("Vite failed before creating the project.");
     process.exitCode = 1;
-    return;
+    return false;
   }
 
-  if (!vitePassed) retryInstallDependencies(name, target);
+  if (result.status !== 0) return retryInstallDependencies(name, target);
+
+  return true;
 };

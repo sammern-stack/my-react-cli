@@ -42,7 +42,7 @@ export const registerNewCommand = (program: Command) => {
         return;
       }
 
-      runCreateVite(name, target, options.template);
+      if (!runCreateVite(name, target, options.template)) return;
 
       fs.writeFileSync(
         path.join(target, "ct.config.json"),
