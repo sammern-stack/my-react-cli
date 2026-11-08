@@ -2,7 +2,7 @@ import path from "path";
 
 import { getTemplate } from "../../../utils/general.js";
 
-import type { File } from "../generate.types.js";
+import type { File } from "../types/generate.types.js";
 
 export const getHookFiles = (
   folder: string,

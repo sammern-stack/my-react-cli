@@ -6,7 +6,7 @@ import { error } from "./console.js";
 import { loadConfig } from "./loadConfig.js";
 import { isTypescriptUsed } from "./validators.js";
 
-import type { Check } from "../commands/generate/generate.types.js";
+import type { Check } from "../commands/generate/types/generate.types.js";
 import type { CustomTemplate } from "../commands/new/new.types.js";
 
 type Template = "component" | "hook" | "stylesheet" | "main" | "page";

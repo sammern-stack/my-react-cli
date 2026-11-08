@@ -3,7 +3,7 @@ import fs from "fs";
 import { error, warning } from "./console.js";
 import { CONFIG_PROPERTY_TYPES } from "../constants/config.constants.js";
 import { STYLES } from "../commands/generate/generate.constants.js";
-import type { Style } from "../commands/generate/generate.types.js";
+import type { Style } from "../commands/generate/types/generate.types.js";
 import type { Config, ConfigKeys } from "../types/config.types.js";
 
 // Utilities

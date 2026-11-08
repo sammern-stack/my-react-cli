@@ -10,11 +10,12 @@ import {
   runChecks,
 } from "../../utils/general.js";
 import { registerPage } from "./utils/registerPage.js";
-import { generate, getDirPath } from "./utils/general.js";
+import { writeGeneratedFiles } from "./utils/writeGeneratedFiles.js";
 import { getComponentFiles } from "./utils/getComponentFiles.js";
 import { getHookFiles } from "./utils/getHookFiles.js";
+import { resolveDestination } from "./utils/resolveDestination.js";
 
-import type { File, Options, Type } from "./generate.types.js";
+import type { File, Options, Type } from "./types/generate.types.js";
 
 export const registerGenerateCommand = (program: Command) => {
   program
@@ -49,7 +50,7 @@ export const registerGenerateCommand = (program: Command) => {
         },
       ]);
 
-      const dir = getDirPath(type, name, options);
+      const dir = resolveDestination(type, name, options);
       const useTs = projectUsesTs(options.ts);
       const style = await projectStyleExt(options.style);
 
@@ -66,7 +67,7 @@ export const registerGenerateCommand = (program: Command) => {
           applyTemplate(useTs ? "feature-ts" : "feature", dir);
           break;
       }
-      generate(dir, name, files);
+      writeGeneratedFiles(dir, name, files);
 
       if (type === "page") registerPage(name, `../pages/${name}`);
     });

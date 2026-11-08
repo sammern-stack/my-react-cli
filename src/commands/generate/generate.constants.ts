@@ -1,4 +1,4 @@
-import type { DefaultDirs, Type } from "./generate.types.js";
+import type { DefaultDirs, Type } from "./types/generate.types.js";
 
 export const TYPES = ["component", "hook", "page", "feature"] as const;
 export const STYLES = ["css", "scss"] as const;

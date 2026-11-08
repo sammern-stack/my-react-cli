@@ -1,4 +1,4 @@
-import type { STYLES, TYPES } from "./generate.constants.js";
+import type { STYLES, TYPES } from "../generate.constants.js";
 
 export type Check = { condition: boolean | undefined; message: string };
 

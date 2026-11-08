@@ -1,21 +1,17 @@
-import fs from "fs";
 import path from "path";
-import chalk from "chalk";
-
-import { info } from "../../../utils/console.js";
+import fs from "fs";
 
 import { DEFAULT_DIRS } from "../generate.constants.js";
+
 import { exit } from "../../../utils/general.js";
 
-import type { DefaultDirs, File, Options, Type } from "../generate.types.js";
+import type { Type, Options, DefaultDirs } from "../types/generate.types.js";
 
-export const generate = (dir: string, name: string, files: File[]) => {
-  fs.mkdirSync(dir, { recursive: true });
-  for (const { path, content } of files) fs.writeFileSync(path, content);
-  info(`${name} created at ${chalk.gray(dir)}`);
-};
-
-export const getDirPath = (type: Type, name: string, options: Options) => {
+export const resolveDestination = (
+  type: Type,
+  name: string,
+  options: Options,
+) => {
   const srcDir = path.join(process.cwd(), "src");
   const featureDir =
     options.feature !== undefined
