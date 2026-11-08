@@ -4,12 +4,8 @@ import fs from "fs";
 import { ROUTES_FILES } from "../generate.constants.js";
 
 import { info, warning } from "../../../utils/console.js";
-import { finishProject, getJSX, startProject } from "../../../utils/project.js";
-import {
-  addLazyDeclaration,
-  ensureLazyImport,
-  getRouteAnchor,
-} from "./pageHelpers.js";
+import { getJSX, runProject } from "../../../utils/project.js";
+import { addLazyDeclaration, getRouteAnchor } from "./pageHelpers.js";
 
 // First candidate file that exists and declares a <Routes> element
 const findRoutesFile = () =>
@@ -27,30 +23,29 @@ export const registerPage = (name: string, importPath: string) => {
   }
   const routesName = path.basename(routesPath);
 
-  const file = startProject(routesPath);
+  runProject(routesPath, ({ file, ensureNamedImport }) => {
+    if (file.getVariableDeclaration(`${name}Page`)) {
+      return warning(`${name} is already in ${routesName}.`);
+    }
 
-  if (file.getVariableDeclaration(`${name}Page`)) {
-    return warning(`${name} is already in ${routesName}.`);
-  }
+    ensureNamedImport("lazy", "react");
+    addLazyDeclaration(
+      file,
+      `const ${name}Page = lazy(() => import("${importPath}/${name}"));`,
+    );
 
-  ensureLazyImport(file);
-  addLazyDeclaration(
-    file,
-    `const ${name}Page = lazy(() => import("${importPath}/${name}"));`,
-  );
+    const routes = getJSX(file, "Routes");
 
-  const routes = getJSX(file, "Routes");
+    if (!routes) {
+      return warning(`No <Routes> found in ${routesName}, skipped route.`);
+    }
 
-  if (!routes) {
-    return warning(`No <Routes> found in ${routesName}, skipped route.`);
-  }
+    const urlPath = name.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
+    file.insertText(
+      getRouteAnchor(routes).getEnd(),
+      `\n<Route path="/${urlPath}" element={<${name}Page />} />`,
+    );
+  });
 
-  const urlPath = name.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
-  file.insertText(
-    getRouteAnchor(routes).getEnd(),
-    `\n<Route path="/${urlPath}" element={<${name}Page />} />`,
-  );
-
-  finishProject(file, routesPath);
   return info(`Page ${name} registered at ${routesName}`);
 };

@@ -1,4 +1,5 @@
 import {
+  ImportDeclaration,
   JsxElement,
   JsxSelfClosingElement,
   Project,
@@ -8,12 +9,33 @@ import {
 
 import { formatFile } from "./formatFile.js";
 
-export const startProject = (filePath: string) => {
+export const runProject = (
+  filePath: string,
+  callback: (options: {
+    file: SourceFile;
+    ensureNamedImport: (importName: string, from: string) => void;
+  }) => void,
+) => {
   const project = new Project();
-  return project.addSourceFileAtPath(filePath);
-};
+  const file = project.addSourceFileAtPath(filePath);
 
-export const finishProject = (file: SourceFile, filePath: string) => {
+  const getNamedImport = (declaration: ImportDeclaration, name: string) => {
+    return declaration.getNamedImports().some((n) => n.getName() === name);
+  };
+
+  const insertNamedImport = (names: string[], from: string) => {
+    file.addImportDeclaration({ namedImports: names, moduleSpecifier: from });
+  };
+
+  const ensureNamedImport = (importName: string, from: string) => {
+    const importDeclaration = file.getImportDeclaration(from);
+    if (!importDeclaration) return insertNamedImport([importName], from);
+    if (getNamedImport(importDeclaration, importName)) return;
+    importDeclaration.addNamedImport(importName);
+  };
+
+  callback({ file, ensureNamedImport });
+
   file.saveSync();
   formatFile(filePath);
 };

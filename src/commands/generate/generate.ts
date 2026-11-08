@@ -1,75 +1,73 @@
-import path from "path";
-import fs from "fs";
-import { Command } from "commander";
+import { Argument, Command, Option } from "commander";
 
-import { DEFAULT_DIRS } from "./generate.constants.js";
+import { PATTERNS, STYLES, TYPES } from "./generate.constants.js";
 
-import { error } from "../../utils/console.js";
+import { isReactProject } from "../../utils/validators.js";
+import {
+  applyTemplate,
+  projectStyleExt,
+  projectUsesTs,
+  runChecks,
+} from "../../utils/general.js";
 import { registerPage } from "./utils/registerPage.js";
-import { buildPreActionChecks, generate } from "./utils/general.js";
+import { generate, getDirPath } from "./utils/general.js";
 import { getComponentFiles } from "./utils/getComponentFiles.js";
 import { getHookFiles } from "./utils/getHookFiles.js";
 
-import type { Options, Type } from "./generate.types.js";
+import type { File, Options, Type } from "./generate.types.js";
 
 export const registerGenerateCommand = (program: Command) => {
   program
-    .command("generate <type> <name>")
+    .command("generate")
+    .addArgument(new Argument("<type>").choices(TYPES))
+    .argument("<name>")
     .alias("g")
     .description("generate the given <type> content")
-    .option("-d, --dir <dir>", "target folder for the <type> folder", (value) =>
-      value.replace(/=/, ""),
-    )
+    .option("-d, --dir <dir>", "target folder for the <type> folder")
     .option(
       "-f, --feature <feature>",
       "generate the given <type> inside a feature",
-      (value) => value.replace(/=/, ""),
     )
-    .option(
-      "-s, --style <style>",
-      "use the specified stylesheet style",
-      (value) => value.replace(/=/, ""),
+    .addOption(
+      new Option(
+        "-s, --style <style>",
+        "use the specified stylesheet style",
+      ).choices(STYLES),
     )
     .option("--ts", "Use typescript")
     .option("--force", "skip safety checks and overwrite")
     .action(async (type: Type, name: string, options: Options) => {
-      const checks = buildPreActionChecks(type, name, options);
-      for (const { condition, message } of checks) {
-        if (condition) {
-          error(message);
-          process.exitCode = 1;
-          return;
-        }
-      }
+      runChecks([
+        {
+          condition: !isReactProject() && !options.force,
+          message:
+            "This is not a React project\ncreate one with 'ct new <name>' or use --force",
+        },
+        {
+          condition: !PATTERNS[type].test(name),
+          message: `"${name}" is not a valid ${type} name`,
+        },
+      ]);
 
-      const root = options.feature ? `src/features/${options.feature}` : `src`;
-      const folder = `${options.dir ?? DEFAULT_DIRS[type]}/${name}`;
-      const dir = path.join(process.cwd(), `${root}/${folder}`);
+      const dir = getDirPath(type, name, options);
+      const useTs = projectUsesTs(options.ts);
+      const style = await projectStyleExt(options.style);
 
-      if (fs.existsSync(dir) && !options.force) {
-        error(`Directory '${dir}' already exists\nUse --force to overwrite it`);
-        process.exitCode = 1;
-        return;
+      let files: File[] = [];
+      switch (type) {
+        case "component":
+        case "page":
+          files = await getComponentFiles(dir, name, useTs, style);
+          break;
+        case "hook":
+          files = await getHookFiles(dir, name, useTs);
+          break;
+        case "feature":
+          applyTemplate(useTs ? "feature-ts" : "feature", dir);
+          break;
       }
+      generate(dir, name, files);
 
-      if (type === "component") {
-        const componentFiles = await getComponentFiles(dir, name, options);
-        generate(dir, name, componentFiles);
-      }
-
-      if (type === "hook") {
-        const hookFiles = await getHookFiles(dir, name, options);
-        generate(dir, name, hookFiles);
-      }
-
-      if (type === "page") {
-        const pageDir = path.join(
-          process.cwd(),
-          `src/${DEFAULT_DIRS.page}/${name}`,
-        );
-        const pageFiles = await getComponentFiles(pageDir, name, options);
-        generate(pageDir, name, pageFiles);
-        registerPage(name, `../pages/${name}`);
-      }
+      if (type === "page") registerPage(name, `../pages/${name}`);
     });
 };

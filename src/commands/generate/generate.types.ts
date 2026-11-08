@@ -14,3 +14,5 @@ export interface Options {
 }
 
 export type File = { path: string; content: string };
+
+export type DefaultDirs = Exclude<Type, "feature">;

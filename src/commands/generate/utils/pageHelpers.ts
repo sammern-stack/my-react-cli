@@ -7,18 +7,6 @@ import {
 
 import { getPathValue, getTagName } from "../../../utils/project.js";
 
-export const ensureLazyImport = (file: SourceFile) => {
-  const reactImport = file.getImportDeclaration("react");
-
-  if (!reactImport)
-    file.addImportDeclaration({
-      namedImports: ["lazy"],
-      moduleSpecifier: "react",
-    });
-  else if (!reactImport.getNamedImports().some((n) => n.getName() === "lazy"))
-    reactImport.addNamedImport("lazy");
-};
-
 export const addLazyDeclaration = (file: SourceFile, declaration: string) => {
   const statements = file.getStatements();
   const lastLazy = statements

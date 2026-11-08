@@ -1,17 +1,13 @@
 import fs from "fs";
+import path from "path";
 import chalk from "chalk";
 
-import {
-  STYLES,
-  TYPES,
-  VALID_COMPONENT_NAME,
-  VALID_HOOK_NAME,
-} from "../generate.constants.js";
-
-import { isReactProject } from "../../../utils/validators.js";
 import { info } from "../../../utils/console.js";
 
-import type { Check, File, Options, Type } from "../generate.types.js";
+import { DEFAULT_DIRS } from "../generate.constants.js";
+import { exit } from "../../../utils/general.js";
+
+import type { DefaultDirs, File, Options, Type } from "../generate.types.js";
 
 export const generate = (dir: string, name: string, files: File[]) => {
   fs.mkdirSync(dir, { recursive: true });
@@ -19,32 +15,24 @@ export const generate = (dir: string, name: string, files: File[]) => {
   info(`${name} created at ${chalk.gray(dir)}`);
 };
 
-export const buildPreActionChecks = (
-  type: Type,
-  name: string,
-  options: Options,
-): Check[] => [
-  {
-    condition: !isReactProject() && !options.force,
-    message:
-      "This is not a React project\ncreate one with 'ct new <name>' or use --force",
-  },
-  {
-    condition: !TYPES.includes(type),
-    message: `Invalid type: ${type}`,
-  },
-  {
-    condition: options.style && !STYLES.includes(options.style),
-    message: `Invalid style: ${options.style}`,
-  },
-  {
-    condition:
-      (type === "component" || type === "page") &&
-      !VALID_COMPONENT_NAME.test(name),
-    message: `Invalid component name: ${name}`,
-  },
-  {
-    condition: type === "hook" && !VALID_HOOK_NAME.test(name),
-    message: `Invalid hook name: ${name}`,
-  },
-];
+export const getDirPath = (type: Type, name: string, options: Options) => {
+  const srcDir = path.join(process.cwd(), "src");
+
+  if (type === "feature") return path.join(srcDir, `features/${name}`);
+
+  const rootDir = options.feature
+    ? path.join(srcDir, `/features/${options.feature}`)
+    : srcDir;
+
+  const destination =
+    type !== "page"
+      ? `${options.dir ?? DEFAULT_DIRS[type as DefaultDirs]}/${name}`
+      : `${DEFAULT_DIRS["page"]}/${name}`;
+
+  const dir = path.join(rootDir, destination);
+
+  if (fs.existsSync(dir) && !options.force)
+    exit(`Directory '${dir}' already exists\nUse --force to overwrite it`);
+
+  return path.join(rootDir, destination);
+};
