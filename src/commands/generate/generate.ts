@@ -1,11 +1,14 @@
-import fs from "fs";
 import { Argument, Command, Option } from "commander";
 
 import { PATTERNS, STYLES, TYPES } from "./generate.constants.js";
 
-import { isReactProject, isTypescriptUsed } from "../../utils/validators.js";
-import { getTemplateUrl, runChecks } from "../../utils/general.js";
-import { loadConfig } from "../../utils/loadConfig.js";
+import { isReactProject } from "../../utils/validators.js";
+import {
+  applyTemplate,
+  projectStyleExt,
+  projectUsesTs,
+  runChecks,
+} from "../../utils/general.js";
 import { registerPage } from "./utils/registerPage.js";
 import { generate, getDirPath } from "./utils/general.js";
 import { getComponentFiles } from "./utils/getComponentFiles.js";
@@ -47,24 +50,20 @@ export const registerGenerateCommand = (program: Command) => {
       ]);
 
       const dir = getDirPath(type, name, options);
+      const useTs = projectUsesTs(options.ts);
+      const style = await projectStyleExt(options.style);
 
       let files: File[] = [];
       switch (type) {
         case "component":
         case "page":
-          files = await getComponentFiles(dir, name, options);
+          files = await getComponentFiles(dir, name, useTs, style);
           break;
         case "hook":
-          files = await getHookFiles(dir, name, options);
+          files = await getHookFiles(dir, name, useTs);
           break;
         case "feature":
-          const config = loadConfig() ?? {};
-          const useTs = options.ts ?? config.typescript ?? isTypescriptUsed();
-          const variant = useTs ? "feature-ts" : "feature";
-          fs.cpSync(getTemplateUrl(variant), dir, {
-            recursive: true,
-            force: true,
-          });
+          applyTemplate(useTs ? "feature-ts" : "feature", dir);
           break;
       }
       generate(dir, name, files);
