@@ -36,7 +36,7 @@ export const generateHandler = async (
   switch (type) {
     case "component":
     case "page":
-      files = getComponentFiles(dir, name, useTs, style);
+      files = getComponentFiles(dir, name, useTs, style, type);
       break;
     case "hook":
       files = getHookFiles(dir, name, useTs);

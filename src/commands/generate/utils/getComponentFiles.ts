@@ -9,14 +9,14 @@ export const getComponentFiles = (
   name: string,
   useTs: boolean,
   style: string,
+  type: "component" | "page",
 ): File[] => {
   const langExt = useTs ? "ts" : "js";
-  const isPage = folder.includes("page");
 
   return [
     {
       path: path.join(folder, `${name}.${langExt}x`),
-      content: getTemplate(isPage ? "page" : "component")
+      content: getTemplate(type)
         .replace(/__NAME__/g, name)
         .replace(/__CLASSNAME__/, name.toLowerCase())
         .replace(/.scss/g, `.${style}`),
