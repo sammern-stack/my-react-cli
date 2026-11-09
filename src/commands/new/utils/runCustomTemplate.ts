@@ -1,6 +1,6 @@
 import path from "path";
 import fs from "fs";
-import type { Options } from "../types/new.types.js";
+import type { NewOptions } from "../types/new.types.js";
 
 // Utility
 const removeDefaultFiles = (target: string, files: string[]) => {
@@ -8,7 +8,7 @@ const removeDefaultFiles = (target: string, files: string[]) => {
   fs.rmSync(path.join(target, "src/assets"), { recursive: true, force: true });
 };
 
-export const runCustomTemplate = (target: string, options: Options) => {
+export const runCustomTemplate = (target: string, options: NewOptions) => {
   if (!options.template) return;
 
   const isTs = options.template.endsWith("-ts");

@@ -9,5 +9,6 @@ export const registerNewCommand = (program: Command) => {
       "-t, --template <template>",
       "apply a react Vite template. Use (custom-ts or custom-js) for a custom src layout",
     )
+    .option("--force", "skip safety checks and overwrite")
     .action(newHandler);
 };
