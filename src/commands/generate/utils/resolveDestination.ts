@@ -3,13 +3,17 @@ import fs from "fs";
 
 import { DEFAULT_DIRS } from "../generate.constants.js";
 
-import type { Type, Options, DefaultDirs } from "../types/generate.types.js";
+import type {
+  Type,
+  GenerateOptions,
+  DefaultDirs,
+} from "../types/generate.types.js";
 import { error, info } from "../../../utils/console.js";
 
 export const resolveDestination = (
   type: Type,
   name: string,
-  options: Options,
+  options: GenerateOptions,
 ) => {
   const srcDir = path.join(process.cwd(), "src");
   const featureDir =
