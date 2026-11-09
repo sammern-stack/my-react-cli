@@ -10,7 +10,7 @@ import {
   verifyCommandArgs,
   verifyCommandExecution,
   verifyCommandOptions,
-} from "./utils/verifyCommand.js";
+} from "./validators/verify.js";
 
 import type { File, GenerateOptions, Type } from "./types/generate.types.js";
 
