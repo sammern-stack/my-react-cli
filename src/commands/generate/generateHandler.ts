@@ -1,16 +1,15 @@
-import { buildGenerateProperties } from "./utils/buildGenerateProperties.js";
-import { registerPage } from "./utils/registerPage.js";
-import { writeGeneratedFiles } from "./utils/writeGeneratedFiles.js";
-import { buildTargetPath } from "./utils/buildTargetPath.js";
-import { verifyTargetAvailable } from "./validators/target.js";
 import { validateConfig } from "@/utils/validators.js";
 import { retrieveRawConfig } from "@/utils/retrieveRawConfig.js";
+import { buildGenerateProperties } from "./utils/buildGenerateProperties.js";
+import { registerPage } from "./utils/registerPage.js";
+import { buildTargetPath } from "./utils/buildTargetPath.js";
+import { verifyTargetAvailable } from "./validators/target.js";
 import {
   verifyCommandArgs,
   verifyCommandExecution,
   verifyCommandOptions,
 } from "./validators/verify.js";
-import { assembleFilePackage } from "./utils/file.js";
+import { assembleFilePackage, writeGeneratedFiles } from "./utils/file.js";
 import type { GenerateOptions, Type } from "./types/generate.types.js";
 
 export const generateHandler = async (

@@ -1,5 +1,8 @@
 import path from "path";
+import fs from "fs";
+import chalk from "chalk";
 
+import { info } from "@/utils/console.js";
 import { getTemplate } from "@/utils/templates.js";
 
 import type {
@@ -56,4 +59,14 @@ export const assembleFilePackage = (
     default:
       return assertNever(type);
   }
+};
+
+export const writeGeneratedFiles = (
+  dir: string,
+  name: string,
+  files: File[],
+) => {
+  fs.mkdirSync(dir, { recursive: true });
+  for (const { path, content } of files) fs.writeFileSync(path, content);
+  info(`${name} created at ${chalk.gray(dir)}`);
 };
