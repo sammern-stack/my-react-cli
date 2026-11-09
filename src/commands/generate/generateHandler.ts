@@ -5,7 +5,6 @@ import { registerPage } from "./utils/registerPage.js";
 import { writeGeneratedFiles } from "./utils/writeGeneratedFiles.js";
 import { getComponentFiles } from "./utils/getComponentFiles.js";
 import { getHookFiles } from "./utils/getHookFiles.js";
-import { resolveDestination } from "./utils/resolveDestination.js";
 import {
   verifyCommandArgs,
   verifyCommandExecution,
@@ -13,6 +12,8 @@ import {
 } from "./validators/verify.js";
 
 import type { File, GenerateOptions, Type } from "./types/generate.types.js";
+import { buildTargetPath } from "./utils/buildTargetPath.js";
+import { verifyTargetAvailable } from "./validators/target.js";
 
 export const generateHandler = async (
   type: Type,
@@ -21,9 +22,11 @@ export const generateHandler = async (
 ) => {
   verifyCommandExecution(options.force);
   verifyCommandArgs(type, name);
-  verifyCommandOptions(options);
+  verifyCommandOptions(type, options);
 
-  const dir = resolveDestination(type, name, options);
+  const target = buildTargetPath(type, name, options);
+  verifyTargetAvailable(target, options.force);
+
   const config = loadConfig() ?? {};
   const useTs = projectUsesTs(options.ts, config);
 
@@ -32,7 +35,7 @@ export const generateHandler = async (
     case "component":
     case "page":
       files = getComponentFiles(
-        dir,
+        target,
         name,
         useTs,
         await projectStyleExt(options.style, config),
@@ -40,13 +43,13 @@ export const generateHandler = async (
       );
       break;
     case "hook":
-      files = getHookFiles(dir, name, useTs);
+      files = getHookFiles(target, name, useTs);
       break;
     case "feature":
-      applyTemplate(useTs ? "feature-ts" : "feature", dir);
+      applyTemplate(useTs ? "feature-ts" : "feature", target);
       break;
   }
-  writeGeneratedFiles(dir, name, files);
+  writeGeneratedFiles(target, name, files);
 
   if (type === "page") registerPage(name, `../pages/${name}`);
 };

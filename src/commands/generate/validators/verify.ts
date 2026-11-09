@@ -11,6 +11,11 @@ import { hasDependency } from "@/utils/validators.js";
 import type { Flag } from "@/types/command.types.js";
 import type { GenerateOptions, Type } from "../types/generate.types.js";
 
+const unsupported: Partial<Record<Type, (keyof GenerateOptions)[]>> = {
+  page: ["feature", "dir"],
+  feature: ["feature", "dir"],
+};
+
 export const verifyCommandExecution = (forced: Flag) => {
   if (!hasDependency("react") && !forced) {
     fail(
@@ -36,7 +41,13 @@ export const verifyCommandArgs = (type: Type, name: string) => {
   }
 };
 
-export const verifyCommandOptions = (options: GenerateOptions) => {
+export const verifyCommandOptions = (type: Type, options: GenerateOptions) => {
+  for (const opt of unsupported[type] ?? []) {
+    if (options[opt] !== undefined) {
+      fail(`Option --${opt} can't be used with type '${type}'`);
+    }
+  }
+
   if (options.dir !== undefined) {
     const dir = options.dir.trim();
     if (dir === "") fail("Option --dir can't be an empty string");
