@@ -1,5 +1,3 @@
-import { PATTERNS } from "./generate.constants.js";
-import { isReactProject } from "../../utils/validators.js";
 import { applyTemplate } from "../../utils/templates.js";
 import { loadConfig } from "../../utils/loadConfig.js";
 import { projectStyleExt, projectUsesTs } from "./utils/generationOptions.js";
@@ -8,25 +6,22 @@ import { writeGeneratedFiles } from "./utils/writeGeneratedFiles.js";
 import { getComponentFiles } from "./utils/getComponentFiles.js";
 import { getHookFiles } from "./utils/getHookFiles.js";
 import { resolveDestination } from "./utils/resolveDestination.js";
+import {
+  verifyCommandArgs,
+  verifyCommandExecution,
+  verifyCommandOptions,
+} from "./utils/verifyCommand.js";
 
-import type { File, Options, Type } from "./types/generate.types.js";
-import { error, info } from "../../utils/console.js";
+import type { File, GenerateOptions, Type } from "./types/generate.types.js";
 
 export const generateHandler = async (
   type: Type,
   name: string,
-  options: Options,
+  options: GenerateOptions,
 ) => {
-  if (!isReactProject() && !options.force) {
-    error("This isn't a React project");
-    info("Create one with 'ct new <name>' or use --force");
-    process.exit(1);
-  }
-
-  if (!PATTERNS[type].test(name)) {
-    error(`"${name}" is not a valid ${type} name`);
-    process.exit(1);
-  }
+  verifyCommandExecution(options.force);
+  verifyCommandArgs(type, name);
+  verifyCommandOptions(options);
 
   const dir = resolveDestination(type, name, options);
   const config = loadConfig() ?? {};

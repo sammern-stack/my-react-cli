@@ -3,11 +3,11 @@ import type { DefaultDirs, Type } from "./types/generate.types.js";
 export const TYPES = ["component", "hook", "page", "feature"] as const;
 export const STYLES = ["css", "scss"] as const;
 
-export const PATTERNS: Record<Type, RegExp> = {
-  component: /^[A-Z][a-zA-Z]*$/,
-  hook: /^use[A-Z][a-zA-Z]*$/,
-  page: /^[A-Z][a-zA-Z]*$/,
-  feature: /^[A-Z][a-zA-Z]*$/,
+export const PATTERNS: Record<Type, [RegExp, string]> = {
+  component: [/^[A-Z][a-zA-Z]*$/, "PascalCase"],
+  hook: [/^use[A-Z][a-zA-Z]*$/, "prefix 'use' follow PascalCase"],
+  page: [/^[A-Z][a-zA-Z]*$/, "PascalCase"],
+  feature: [/^[A-Z][a-zA-Z]*$/, "PascalCase"],
 };
 
 export const DEFAULT_DIRS: Record<DefaultDirs, string> = {
