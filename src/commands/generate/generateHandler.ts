@@ -1,11 +1,8 @@
-import { projectStyleExt, projectUsesTs } from "./utils/generationOptions.js";
+import { buildGenerateProperties } from "./utils/buildGenerateProperties.js";
 import { registerPage } from "./utils/registerPage.js";
 import { writeGeneratedFiles } from "./utils/writeGeneratedFiles.js";
-import { getComponentFiles } from "./utils/getComponentFiles.js";
-import { getHookFiles } from "./utils/getHookFiles.js";
 import { buildTargetPath } from "./utils/buildTargetPath.js";
 import { verifyTargetAvailable } from "./validators/target.js";
-import { applyTemplate } from "@/utils/templates.js";
 import { validateConfig } from "@/utils/validators.js";
 import { retrieveRawConfig } from "@/utils/retrieveRawConfig.js";
 import {
@@ -13,7 +10,8 @@ import {
   verifyCommandExecution,
   verifyCommandOptions,
 } from "./validators/verify.js";
-import type { File, GenerateOptions, Type } from "./types/generate.types.js";
+import { assembleFilePackage } from "./utils/file.js";
+import type { GenerateOptions, Type } from "./types/generate.types.js";
 
 export const generateHandler = async (
   type: Type,
@@ -28,29 +26,9 @@ export const generateHandler = async (
   verifyTargetAvailable(target, options.force);
 
   const config = validateConfig(retrieveRawConfig());
-
-  const useTs = projectUsesTs(options.ts, config);
-
-  let files: File[] = [];
-  switch (type) {
-    case "component":
-    case "page":
-      files = getComponentFiles(
-        target,
-        name,
-        useTs,
-        await projectStyleExt(options.style, config),
-        type,
-      );
-      break;
-    case "hook":
-      files = getHookFiles(target, name, useTs);
-      break;
-    case "feature":
-      applyTemplate(useTs ? "feature-ts" : "feature", target);
-      break;
-  }
-  writeGeneratedFiles(target, name, files);
+  const { exts } = await buildGenerateProperties(options, config);
+  const files = assembleFilePackage(target, name, type, exts);
+  if (files.length > 0) writeGeneratedFiles(target, name, files);
 
   if (type === "page") registerPage(name, `../pages/${name}`);
 };
