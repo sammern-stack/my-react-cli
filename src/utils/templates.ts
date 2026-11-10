@@ -1,7 +1,7 @@
 import fs from "fs";
 
 type Template = "component" | "hook" | "stylesheet" | "main" | "page";
-type TemplateDirectory = "custom-js" | "custom-ts" | "feature-ts" | "feature";
+type TemplateDirectory = "react-ts" | "react" | "feature-ts" | "feature";
 
 export const getTemplate = (template: Template) =>
   fs.readFileSync(
