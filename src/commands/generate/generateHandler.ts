@@ -1,18 +1,20 @@
+import path from "path";
+
 import { validateConfig } from "../../utils/validators.js";
 import { retrieveRawConfig } from "../../utils/retrieveRawConfig.js";
 import { buildGenerateProperties } from "./utils/buildGenerateProperties.js";
-import { registerPage } from "./utils/registerPage.js";
 import { buildTargetPath } from "./utils/buildTargetPath.js";
-import { verifyTargetAvailable } from "./validators/target.js";
+import { verifyTargetAvailable } from "./utils/validators/target.js";
 import {
   verifyCommandArgs,
   verifyCommandExecution,
   verifyCommandOptions,
-} from "./validators/verify.js";
+} from "./utils/validators/verify.js";
 import { assembleFilePackage, writeGeneratedFiles } from "./utils/file.js";
+import { registerInBarrel } from "./utils/register/barrel.js";
+import { registerPage } from "./utils/register/page.js";
+
 import type { GenerateOptions, Type } from "./types/generate.types.js";
-import path from "path";
-import { registerInBarrel } from "./register/barrel.js";
 
 export const generateHandler = async (
   type: Type,

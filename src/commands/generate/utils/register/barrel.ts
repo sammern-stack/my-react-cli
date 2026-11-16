@@ -1,5 +1,5 @@
-import { fail } from "../../../utils/console.js";
-import { writeSourceFile } from "../../../utils/project.js";
+import { fail } from "../../../../utils/console.js";
+import { writeSourceFile } from "../../../../utils/project.js";
 
 export const registerInBarrel = (
   target: string,

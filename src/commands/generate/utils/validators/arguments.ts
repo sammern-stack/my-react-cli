@@ -1,5 +1,5 @@
-import { PATTERNS, TYPES } from "../generate.constants.js";
-import type { Type } from "../types/generate.types.js";
+import { PATTERNS, TYPES } from "../../generate.constants.js";
+import type { Type } from "../../types/generate.types.js";
 
 export const isTypeValid = (type: Type) => TYPES.includes(type);
 

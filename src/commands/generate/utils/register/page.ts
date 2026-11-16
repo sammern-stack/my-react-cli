@@ -1,11 +1,11 @@
 import path from "path";
 import fs from "fs";
 
-import { ROUTES_FILES } from "../generate.constants.js";
+import { ROUTES_FILES } from "../../generate.constants.js";
 
-import { info, warning } from "../../../utils/console.js";
-import { getJSX, writeSourceFile } from "../../../utils/project.js";
-import { addLazyDeclaration, getRouteAnchor } from "./pageHelpers.js";
+import { info, warning } from "../../../../utils/console.js";
+import { getJSX, writeSourceFile } from "../../../../utils/project.js";
+import { addLazyDeclaration, getRouteAnchor } from "../pageHelpers.js";
 
 // First candidate file that exists and declares a <Routes> element
 const findRoutesFile = () =>
