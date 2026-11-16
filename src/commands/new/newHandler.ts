@@ -7,11 +7,11 @@ import {
   verifyCommandOptions,
 } from "./validators/verify.js";
 import { resolveTarget } from "./validators/target.js";
-import { fail } from "@/utils/console.js";
+import { fail } from "../../utils/console.js";
 import { buildViteCommand, retryInstallDependencies } from "./utils/vite.js";
 import { isCustomTemplate } from "./validators/template.js";
 import { writeConfig } from "./utils/writeConfig.js";
-import { executeCommand } from "@/utils/command.js";
+import { executeCommand } from "../../utils/command.js";
 
 import type { NewOptions } from "./types/new.types.js";
 

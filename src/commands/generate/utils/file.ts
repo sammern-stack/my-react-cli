@@ -2,8 +2,8 @@ import path from "path";
 import fs from "fs";
 import chalk from "chalk";
 
-import { info } from "@/utils/console.js";
-import { getTemplate } from "@/utils/templates.js";
+import { info } from "../../../utils/console.js";
+import { getTemplate } from "../../../utils/templates.js";
 
 import type {
   File,

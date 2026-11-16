@@ -9,7 +9,7 @@ import {
 
 import { formatFile } from "./formatFile.js";
 
-export const runProject = (
+export const writeSourceFile = (
   filePath: string,
   callback: (options: {
     file: SourceFile;

@@ -1,10 +1,10 @@
 import path from "path";
 import fs from "fs";
-import type { Config, ConfigKeys } from "@/types/config.types.js";
-import { CONFIG_PROPERTY_TYPES } from "@/constants/config.constants.js";
+import type { Config, ConfigKeys } from "../types/config.types.js";
+import { CONFIG_PROPERTY_TYPES } from "../constants/config.constants.js";
 import { warning } from "./console.js";
-import { STYLES } from "@/commands/generate/generate.constants.js";
-import type { Style } from "@/commands/generate/types/generate.types.js";
+import { STYLES } from "../commands/generate/generate.constants.js";
+import type { Style } from "../commands/generate/types/generate.types.js";
 
 export const hasDependency = (dependency: string) => {
   const packagePath = path.join(process.cwd(), "package.json");

@@ -4,7 +4,7 @@ import fs from "fs";
 import { ROUTES_FILES } from "../generate.constants.js";
 
 import { info, warning } from "../../../utils/console.js";
-import { getJSX, runProject } from "../../../utils/project.js";
+import { getJSX, writeSourceFile } from "../../../utils/project.js";
 import { addLazyDeclaration, getRouteAnchor } from "./pageHelpers.js";
 
 // First candidate file that exists and declares a <Routes> element
@@ -23,7 +23,7 @@ export const registerPage = (name: string, importPath: string) => {
   }
   const routesName = path.basename(routesPath);
 
-  runProject(routesPath, ({ file, ensureNamedImport }) => {
+  writeSourceFile(routesPath, ({ file, ensureNamedImport }) => {
     if (file.getVariableDeclaration(`${name}Page`)) {
       return warning(`${name} is already in ${routesName}.`);
     }

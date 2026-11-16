@@ -18,7 +18,8 @@
     "build:schema": "ts-json-schema-generator --path src/types/config.types.ts --type Config --no-top-ref -o ct.config.schema.json",
     "build:link": "npm run build && npm link",
     "prepublishOnly": "npm run build",
-    "dev": "tsx src/bin/ct.ts"
+    "dev": "tsx src/bin/ct.ts",
+    "test": "npm run build && node --test tests/cli.test.js"
   },
   "dependencies": {
     "chalk": "^6.0.1",

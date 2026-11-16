@@ -1,6 +1,6 @@
 import { isViteTemplate } from "../validators/template.js";
-import { executeCommand } from "@/utils/command.js";
-import { fail, warning } from "@/utils/console.js";
+import { executeCommand } from "../../../utils/command.js";
+import { fail, warning } from "../../../utils/console.js";
 
 export const buildViteCommand = (name: string, template?: string) => {
   const base = `npm create vite@latest ${name}`;

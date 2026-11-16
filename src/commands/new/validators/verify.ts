@@ -1,15 +1,15 @@
-import { TYPES } from "@/commands/generate/generate.constants.js";
+import { TYPES } from "../../generate/generate.constants.js";
 import {
   CUSTOM_TEMPLATES,
   TEMPLATES,
   VALID_REACT_NAME,
 } from "../new.constants.js";
 
-import { fail } from "@/utils/console.js";
-import { hasDependency } from "@/utils/validators.js";
-import { isInvalidTemplate } from "../utils/templateValidation.js";
+import { fail } from "../../../utils/console.js";
+import { hasDependency } from "../../../utils/validators.js";
+import { isInvalidTemplate } from "./template.js";
 
-import type { Flag } from "@/types/command.types.js";
+import type { Flag } from "../../../types/command.types.js";
 import type { NewOptions } from "../types/new.types.js";
 
 export const verifyCommandExecution = (forced: Flag) => {

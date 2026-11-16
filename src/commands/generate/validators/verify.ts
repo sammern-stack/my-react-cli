@@ -4,11 +4,11 @@ import path from "path";
 import { PATTERNS, STYLES, TYPES } from "../generate.constants.js";
 
 import { isNameValid, isTypeValid } from "./arguments.js";
-import { resolveDir } from "@/utils/path.js";
-import { fail } from "@/utils/console.js";
-import { hasDependency } from "@/utils/validators.js";
+import { resolveDir } from "../../../utils/path.js";
+import { fail } from "../../../utils/console.js";
+import { hasDependency } from "../../../utils/validators.js";
 
-import type { Flag } from "@/types/command.types.js";
+import type { Flag } from "../../../types/command.types.js";
 import type { GenerateOptions, Type } from "../types/generate.types.js";
 
 const unsupported: Partial<Record<Type, (keyof GenerateOptions)[]>> = {

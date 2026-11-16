@@ -1,5 +1,5 @@
-import { validateConfig } from "@/utils/validators.js";
-import { retrieveRawConfig } from "@/utils/retrieveRawConfig.js";
+import { validateConfig } from "../../utils/validators.js";
+import { retrieveRawConfig } from "../../utils/retrieveRawConfig.js";
 import { buildGenerateProperties } from "./utils/buildGenerateProperties.js";
 import { registerPage } from "./utils/registerPage.js";
 import { buildTargetPath } from "./utils/buildTargetPath.js";

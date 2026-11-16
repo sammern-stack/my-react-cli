@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs";
 
-import { getTemplateUrl } from "@/utils/templates.js";
+import { getTemplateUrl } from "../../../utils/templates.js";
 
 // Utility
 const removeDefaultFiles = (target: string, files: string[]) => {
