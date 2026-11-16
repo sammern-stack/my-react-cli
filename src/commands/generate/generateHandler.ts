@@ -11,6 +11,8 @@ import {
 } from "./validators/verify.js";
 import { assembleFilePackage, writeGeneratedFiles } from "./utils/file.js";
 import type { GenerateOptions, Type } from "./types/generate.types.js";
+import path from "path";
+import { registerInBarrel } from "./register/barrel.js";
 
 export const generateHandler = async (
   type: Type,
@@ -21,7 +23,7 @@ export const generateHandler = async (
   verifyCommandArgs(type, name);
   verifyCommandOptions(type, options);
 
-  const target = buildTargetPath(type, name, options);
+  const { target, rootDir, subDir } = buildTargetPath(type, name, options);
   verifyTargetAvailable(target, options.force);
 
   const config = validateConfig(retrieveRawConfig());
@@ -30,4 +32,9 @@ export const generateHandler = async (
   if (files.length > 0) writeGeneratedFiles(target, name, files);
 
   if (type === "page") registerPage(name, `../pages/${name}`);
+  if (type === "component" && options.feature !== undefined) {
+    const indexPath = path.join(rootDir, `index.${exts.lang}`);
+    const moduleSpecifier = `./${subDir}/${name}/${name}`;
+    registerInBarrel(indexPath, moduleSpecifier, name);
+  }
 };

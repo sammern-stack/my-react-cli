@@ -13,10 +13,11 @@ export const buildTargetPath = (
   name: string,
   options: GenerateOptions,
 ) => {
+  let target: string;
   const srcDir = path.join(process.cwd(), "src");
 
-  if (type === "feature") return path.join(srcDir, "features", name);
-  if (type === "page") return path.join(srcDir, "pages", name);
+  if (type === "feature") target = path.join(srcDir, "features", name);
+  if (type === "page") target = path.join(srcDir, "pages", name);
 
   const rootDir =
     options.feature !== undefined
@@ -25,5 +26,7 @@ export const buildTargetPath = (
 
   const subDir = options.dir ?? DEFAULT_DIRS[type as DefaultDirs];
 
-  return path.join(rootDir, subDir, name);
+  target = path.join(rootDir, subDir, name);
+
+  return { target, rootDir, subDir };
 };
