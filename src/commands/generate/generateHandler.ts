@@ -32,7 +32,7 @@ export const generateHandler = async (
   if (files.length > 0) writeGeneratedFiles(target, name, files);
 
   if (type === "page") registerPage(name, `../pages/${name}`);
-  if (type === "component" && options.feature !== undefined) {
+  if (["component", "hook"].includes(type) && options.feature !== undefined) {
     const indexPath = path.join(rootDir, `index.${exts.lang}`);
     const moduleSpecifier = `./${subDir}/${name}/${name}`;
     registerInBarrel(indexPath, moduleSpecifier, name);
