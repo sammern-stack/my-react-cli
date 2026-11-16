@@ -3,7 +3,7 @@ import fs from "fs";
 import chalk from "chalk";
 
 import { info } from "../../../utils/console.js";
-import { getTemplate } from "../../../utils/templates.js";
+import { getTemplate, getTemplateUrl } from "../../../utils/templates.js";
 
 import type {
   File,
@@ -36,6 +36,9 @@ export const assembleFilePackage = (
 
   switch (type) {
     case "feature":
+      const template = exts.lang === "ts" ? "feature-ts" : "feature";
+      const overlay = getTemplateUrl(template);
+      fs.cpSync(overlay, target, { recursive: true });
       return [];
 
     case "hook":
